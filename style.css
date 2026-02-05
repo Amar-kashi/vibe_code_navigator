@@ -127,27 +127,54 @@ body {
     font-weight: 400;
 }
 
-/* --- 4. Scrollable List Area --- */
+/* --- 4. Scrollable List Area (Fixed for Mobile) --- */
 .location-scroller {
-    overflow-y: auto;
-    flex-grow: 1;
+    overflow-y: auto;          /* Enable vertical scrolling */
+    overflow-x: hidden;        /* Prevent horizontal scrolling */
+    flex-grow: 1;              /* Fill remaining space */
     padding: 16px;
-    scrollbar-color: rgba(0,0,0,0.2) transparent;
-    scrollbar-width: thin; /* Firefox */
+    
+    /* CRITICAL: Enables smooth "flick" scrolling on phones */
+    -webkit-overflow-scrolling: touch; 
+    
+    /* Standard Firefox Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.3) transparent;
 }
 
-/* Webkit Scrollbar */
+/* --- Android / Chrome / Safari Scrollbar Styling --- */
+/* You MUST define a width, otherwise Android hides it completely */
 .location-scroller::-webkit-scrollbar {
-    width: 5px;
+    width: 6px; 
+    background: transparent; /* Optional: clear track */
 }
+
 .location-scroller::-webkit-scrollbar-thumb {
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 10px;
+    background-color: rgba(0,0,0,0.2); /* Grey handle */
+    border-radius: 10px;       /* Rounded edges */
+    border: 2px solid transparent; /* Padding trick */
+    background-clip: content-box;
 }
+
 .location-scroller::-webkit-scrollbar-track {
     background: transparent;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
-
+@media (max-width: 768px) {
+    .ui-container {
+        /* It MUST have a fixed max-height, or it will grow forever and never scroll */
+        height: 60vh;        /* Example: Take up 60% of the screen */
+        max-height: 80vh;    /* Safety limit */
+        
+        display: flex;       /* Critical for flex-grow to work */
+        flex-direction: column;
+        
+        /* ... existing positioning styles ... */
+        bottom: 0;
+        top: auto;
+    }
+}
 /* --- 5. Accordion Menu Items (Interactive) --- */
 .menu-btn {
     width: 100%;
@@ -422,4 +449,67 @@ body {
 @keyframes slideUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Floating Recenter Button --- */
+/* --- Robotic Recenter Button --- */
+.recenter-btn {
+    position: absolute;
+    bottom: 150px;
+    right: 10px;
+    z-index: 10;
+    border-radius: 40%;
+
+    
+    /* Sizing */
+    width: 44px;
+    height: 44px;
+    
+    /* Robotic Visuals */
+    background: rgba(27, 27, 53, 0.9); /* Dark metallic background */
+    border: 1px solid #00f3ff; /* Neon Cyan Border */
+    color: #00f3ff; /* Neon Text Color */
+    
+    /* Tech Shape (Cut corners) */
+    clip-path: polygon(
+        10% 0, 100% 0, 
+        100% 90%, 90% 100%, 
+        0 100%, 0 10%
+    );
+    
+    /* Glow Effect */
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.3), inset 0 0 5px rgba(0, 243, 255, 0.1);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+
+    /* Text/Icon Centering */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Hover Effect: "Power Up" */
+.recenter-btn:hover {
+    background: rgba(0, 243, 255, 0.15); /* Light up the inside */
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.6); /* Stronger glow */
+    transform: scale(1.05); /* Slight pop */
+    text-shadow: 0 0 8px #00f3ff;
+}
+
+/* Active Click: "Press" */
+.recenter-btn:active {
+    transform: scale(0.95);
+    background: #00f3ff;
+    color: #000; /* Invert colors on click */
+}
+
+/* Mobile Adjustment */
+@media (max-width: 768px) {
+    .recenter-btn {
+        bottom: 80vh !important;
+        right: 18px !important;
+    }
 }
