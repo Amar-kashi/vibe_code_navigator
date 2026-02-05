@@ -111,68 +111,69 @@ function initMap() {
     locateUser();
 }
 
-// --- 4. GET USER LOCATION (With Drag-to-Correct) ---
+// --- 4. GET USER LOCATION (Automatic & Continuous) ---
 function locateUser() {
-    // A. Internal function to update position when you drag the pin
+    let isFirstUpdate = true; // Flag to check if it's the first time finding you
+    let accuracyCircle = null; // Variable to hold the accuracy circle
+
+    // A. Internal function to update position when you drag the pin (Manual Override)
     function onDragEnd() {
         const lngLat = userMarker.getLngLat();
-        currentUserPos = {
-            lat: lngLat.lat,
-            lng: lngLat.lng
-        };
-        // Update the popup to confirm
-        userMarker.setPopup(new maplibregl.Popup().setHTML("<b>Location Updated!</b><br>Navigating from here."));
-        console.log("New User Position:", currentUserPos);
+        currentUserPos = { lat: lngLat.lat, lng: lngLat.lng };
+        userMarker.setPopup(new maplibregl.Popup().setHTML("<b>Location Updated!</b>"));
     }
 
     if (navigator.geolocation) {
-        const options = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
+        const options = { 
+            enableHighAccuracy: true, // Crucial for "Automatic" precision
+            timeout: 10000, 
+            maximumAge: 0 
+        };
 
-        navigator.geolocation.getCurrentPosition(
+        // B. Use watchPosition instead of getCurrentPosition
+        const watchId = navigator.geolocation.watchPosition(
             (position) => {
-                currentUserPos = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
+                const newLat = position.coords.latitude;
+                const newLng = position.coords.longitude;
+                const accuracy = position.coords.accuracy; // Accuracy in meters
 
-                // B. Create the Draggable Marker
+                currentUserPos = { lat: newLat, lng: newLng };
+
+                // 1. Create or Update Green Marker
                 if (!userMarker) {
                     userMarker = new maplibregl.Marker({ 
                         color: '#4CAF50', 
                         scale: 1.2,
-                        draggable: true  // <--- ENABLE DRAGGING HERE
+                        draggable: true 
                     }) 
-                        .setLngLat([currentUserPos.lng, currentUserPos.lat])
-                        .setPopup(new maplibregl.Popup().setHTML("<b>You are here</b><br>Drag me if I'm wrong!"))
+                        .setLngLat([newLng, newLat])
+                        .setPopup(new maplibregl.Popup().setHTML("<b>You are here</b>"))
                         .addTo(map);
                     
-                    // C. Listen for the 'dragend' event
                     userMarker.on('dragend', onDragEnd);
                 } else {
-                    userMarker.setLngLat([currentUserPos.lng, currentUserPos.lat]);
+                    userMarker.setLngLat([newLng, newLat]);
                 }
 
-                // Fly to the estimated location
-                map.flyTo({ center: [currentUserPos.lng, currentUserPos.lat], zoom: 17 });
+                // 2. Only Fly to user on the FIRST update (so we don't annoy them later)
+                if (isFirstUpdate) {
+                    map.flyTo({ center: [newLng, newLat], zoom: 17 });
+                    isFirstUpdate = false;
+                    console.log(`Automatic Location Found! Accuracy: ${accuracy} meters`);
+                }
             },
             (error) => {
-                console.warn("Location error:", error.message);
-                alert("Could not find you automatically. Please drag the map to your location.");
-                
-                // Fallback: Drop the pin at the center of the map so they can drag it manually
-                const center = map.getCenter();
-                currentUserPos = { lat: center.lat, lng: center.lng };
-                
-                userMarker = new maplibregl.Marker({ color: '#4CAF50', scale: 1.2, draggable: true })
-                    .setLngLat([center.lng, center.lat])
-                    .addTo(map);
-                    
-                userMarker.on('dragend', onDragEnd);
+                console.warn("Auto-locator error:", error.message);
+                // Don't alert constantly, just log it. 
+                // If it fails completely, the user can still drag the pin manually.
             },
             options
         );
+    } else {
+        alert("Geolocation is not supported by your browser.");
     }
 }
+
 // --- 5. RENDER MENU (Recursive - Unchanged) ---
 function renderMenu(data, container) {
     data.forEach(item => {
