@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Location Navigator</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="map"></div>
+    <button id="menu-toggle" class="toggle-btn">☰</button>
+
+    <div class="ui-container">
+        <header class="app-header">
+            <h1>📍 Navigator</h1>
+            <p>Select a location to navigate.</p>
+        </header>
+        <div class="location-scroller" id="location-list"></div>
+        
+        <div id="trip-panel" class="trip-panel">
+            <div class="trip-stats">
+                <div><span class="label">Distance</span><span id="dist-val" class="value">-- m</span></div>
+                <div><span class="label">Walk Time</span><span id="time-val" class="value">-- min</span></div>
+            </div>
+            <a id="navigate-btn" href="#" target="_blank" class="nav-btn">Start Navigation 🚀</a>
+        </div>
+    </div>
+
+    <div id="image-modal" class="modal">
+        <span class="close-btn">&times;</span>
+        <img class="modal-content" id="modal-img" alt="">
+        <div id="caption"></div>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
