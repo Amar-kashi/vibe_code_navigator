@@ -644,133 +644,257 @@ function initMap() {
 
 // --- 4. GET USER LOCATION (Automatic & Continuous) ---
 function locateUser() {
-    let isFirstUpdate = true; // Flag to check if it's the first time finding you
-    let accuracyCircle = null; // Variable to hold the accuracy circle
+    // **NEW: First check if geolocation is supported**
+    if (!navigator.geolocation) {
+        showLocationError('Geolocation is not supported by your browser. Please use a modern browser like Chrome or Safari.');
+        return;
+    }
 
-    // A. Internal function to update position when you drag the pin (Manual Override)
+    let isFirstUpdate = true;
+    let accuracyCircle = null;
+    let watchId = null;
+
+    // A. Internal function to update position when you drag the pin
     function onDragEnd() {
         const lngLat = userMarker.getLngLat();
         currentUserPos = { lat: lngLat.lat, lng: lngLat.lng };
-        userMarker.setPopup(new maplibregl.Popup().setHTML("<b>Location Updated!</b>"));
+        userMarker.setPopup(new maplibregl.Popup().setHTML(
+            `<div style="padding: 5px;">
+                <b>📍 Location Updated!</b><br>
+                <small style="color: #666;">Manually adjusted</small>
+            </div>`
+        ));
     }
 
-    if (navigator.geolocation) {
-        const options = { 
-            enableHighAccuracy: true, // Already set correctly
-            timeout: 15000,           // Increase timeout from 10000 to 15000
-            maximumAge: 0             // Already set correctly
-        };
+    const options = { 
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+    };
 
-        // B. Use watchPosition instead of getCurrentPosition
-        const watchId = navigator.geolocation.watchPosition(
-            (position) => {
-                const newLat = position.coords.latitude;
-                const newLng = position.coords.longitude;
-                const accuracy = position.coords.accuracy; // Accuracy in meters
+    // **NEW: Show loading indicator**
+    showLocationLoading();
 
-                currentUserPos = { lat: newLat, lng: newLng };
+    // B. Use watchPosition for continuous updates
+    watchId = navigator.geolocation.watchPosition(
+        (position) => {
+            const newLat = position.coords.latitude;
+            const newLng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
 
-                // **NEW: Add accuracy circle to visualize GPS precision**
-                if (map.getSource('accuracy-circle')) {
-                    map.getSource('accuracy-circle').setData({
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [newLng, newLat]
-                        },
-                        properties: {
-                            radius: accuracy
-                        }
-                    });
-                } else {
-                    // Add circle layer first time
-                    map.addSource('accuracy-circle', {
-                        type: 'geojson',
-                        data: {
-                            type: 'Feature',
-                            geometry: {
-                                type: 'Point',
-                                coordinates: [newLng, newLat]
-                            },
-                            properties: {
-                                radius: accuracy
-                            }
-                        }
-                    });
-                    
-                    map.addLayer({
-                        id: 'accuracy-circle-layer',
-                        type: 'circle',
-                        source: 'accuracy-circle',
-                        paint: {
-                            'circle-radius': {
-                                stops: [
-                                    [0, 0],
-                                    [20, Math.min(accuracy * 2, 100)]
-                                ],
-                                base: 2
-                            },
-                            'circle-color': '#4CAF50',
-                            'circle-opacity': 0.1,
-                            'circle-stroke-color': '#4CAF50',
-                            'circle-stroke-width': 2,
-                            'circle-stroke-opacity': 0.5
-                        }
-                    });
+            currentUserPos = { lat: newLat, lng: newLng };
+
+            // **NEW: Hide loading indicator**
+            hideLocationLoading();
+
+            // 1. Create or Update Green Marker
+            if (!userMarker) {
+                userMarker = new maplibregl.Marker({ 
+                    color: '#4CAF50', 
+                    scale: 1.2,
+                    draggable: true 
+                }) 
+                    .setLngLat([newLng, newLat])
+                    .setPopup(new maplibregl.Popup().setHTML(
+                        `<div style="padding: 5px;">
+                            <b>📍 You are here</b><br>
+                            <small>Accuracy: ±${Math.round(accuracy)}m</small><br>
+                            <small style="color: #666;">Drag to adjust</small>
+                        </div>`
+                    ))
+                    .addTo(map);
+                
+                userMarker.on('dragend', onDragEnd);
+            } else {
+                userMarker.setLngLat([newLng, newLat]);
+                // **NEW: Update popup with current accuracy**
+                const popup = userMarker.getPopup();
+                if (popup) {
+                    popup.setHTML(
+                        `<div style="padding: 5px;">
+                            <b>📍 You are here</b><br>
+                            <small>Accuracy: ±${Math.round(accuracy)}m</small><br>
+                            <small style="color: #666;">Drag to adjust</small>
+                        </div>`
+                    );
                 }
+            }
 
-                // 1. Create or Update Green Marker
-                if (!userMarker) {
-                    userMarker = new maplibregl.Marker({ 
-                        color: '#4CAF50', 
-                        scale: 1.2,
-                        draggable: true 
-                    }) 
-                        .setLngLat([newLng, newLat])
-                        .setPopup(new maplibregl.Popup().setHTML(
-                            `<div style="padding: 5px;">
-                                <b>📍 You are here</b><br>
-                                <small>Accuracy: ±${Math.round(accuracy)}m</small><br>
-                                <small style="color: #666;">Drag pin to adjust</small>
-                            </div>`
-                        ))
-                        .addTo(map);
-                    
-                    userMarker.on('dragend', onDragEnd);
-                } else {
-                    userMarker.setLngLat([newLng, newLat]);
-                }
+            // 2. Only Fly to user on the FIRST update
+            if (isFirstUpdate) {
+                map.flyTo({ 
+                    center: [newLng, newLat], 
+                    zoom: 17,
+                    duration: 1500,
+                    essential: true
+                });
+                isFirstUpdate = false;
+                
+                const accuracyMsg = accuracy < 20 ? '✅ Excellent' : 
+                                   accuracy < 50 ? '⚠️ Good' : 
+                                   '❌ Poor';
+                console.log(`📍 Location Found! Accuracy: ${Math.round(accuracy)}m (${accuracyMsg})`);
+            }
+        },
+        (error) => {
+            hideLocationLoading();
+            handleLocationError(error);
+        },
+        options
+    );
+}
 
-                // 2. Only Fly to user on the FIRST update (so we don't annoy them later)
-                if (isFirstUpdate) {
-                    map.flyTo({ center: [newLng, newLat], zoom: 17 });
-                    isFirstUpdate = false;
-                    
-                    const accuracyMsg = accuracy < 20 ? '✅ Excellent' : 
-                                       accuracy < 50 ? '⚠️ Good' : 
-                                       '❌ Poor - Try moving to open area';
-                    console.log(`📍 Location Found! Accuracy: ${Math.round(accuracy)}m (${accuracyMsg})`);
-                    
-                    // **NEW: Alert user if accuracy is poor**
-                    if (accuracy > 100) {
-                        setTimeout(() => {
-                            if (confirm('GPS accuracy is low (±' + Math.round(accuracy) + 'm). Move to an open area for better accuracy, or drag the green pin to your exact location. Retry GPS?')) {
-                                locateUser(); // Retry
-                            }
-                        }, 2000);
-                    }
-                }
-            },
-            (error) => {
-                console.warn("Auto-locator error:", error.message);
-                // Don't alert constantly, just log it. 
-                // If it fails completely, the user can still drag the pin manually.
-            },
-            options
-        );
-    } else {
-        alert("Geolocation is not supported by your browser.");
+// **NEW: Location loading indicator**
+function showLocationLoading() {
+    const indicator = document.createElement('div');
+    indicator.id = 'location-loading';
+    indicator.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        ">
+            <div style="
+                width: 20px;
+                height: 20px;
+                border: 3px solid white;
+                border-top-color: transparent;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            "></div>
+            Finding your location...
+        </div>
+        <style>
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+    document.body.appendChild(indicator);
+}
+
+function hideLocationLoading() {
+    const indicator = document.getElementById('location-loading');
+    if (indicator) {
+        indicator.style.opacity = '0';
+        indicator.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => indicator.remove(), 300);
     }
+}
+
+// **NEW: Handle location errors with helpful messages**
+function handleLocationError(error) {
+    let message = '';
+    let actionButton = '';
+
+    switch(error.code) {
+        case error.PERMISSION_DENIED:
+            message = `
+                <b>📍 Location Access Denied</b><br><br>
+                To use navigation, please:<br>
+                1. Click the 🔒 lock icon in your browser's address bar<br>
+                2. Allow location access for this site<br>
+                3. Refresh the page<br><br>
+                Or drag the green pin to your location manually.
+            `;
+            actionButton = `
+                <button onclick="locateUser()" style="
+                    background: #4CAF50;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    margin-top: 10px;
+                ">Try Again</button>
+            `;
+            break;
+        case error.POSITION_UNAVAILABLE:
+            message = `
+                <b>📍 Location Unavailable</b><br><br>
+                Your device cannot determine your location.<br>
+                Please check that:<br>
+                • Location services are enabled on your device<br>
+                • You have an internet connection<br>
+                • You're not in airplane mode
+            `;
+            break;
+        case error.TIMEOUT:
+            message = `
+                <b>⏱️ Location Request Timed Out</b><br><br>
+                Taking too long to find your location.<br>
+                Try moving to an area with better signal.
+            `;
+            actionButton = `
+                <button onclick="locateUser()" style="
+                    background: #4CAF50;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    margin-top: 10px;
+                ">Retry</button>
+            `;
+            break;
+    }
+
+    showLocationError(message + actionButton);
+}
+
+function showLocationError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            z-index: 10001;
+            max-width: 400px;
+            text-align: center;
+        ">
+            ${message}
+            <button onclick="this.parentElement.parentElement.remove()" style="
+                background: #666;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-weight: 600;
+                margin-top: 10px;
+                margin-left: 10px;
+            ">Close</button>
+        </div>
+        <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+        " onclick="this.parentElement.remove()"></div>
+    `;
+    document.body.appendChild(errorDiv);
 }
 
 // --- 5. RENDER MENU (Recursive - Unchanged) ---
@@ -829,27 +953,38 @@ function selectLocation(loc) {
     if(loc.image) openModal(loc.image, loc.title);
     updateTripInfo(loc);
 }
-// --- 10. RECENTER BUTTON LOGIC ---
+// --- 10. RECENTER BUTTON (SMOOTH) ---
 const recenterBtn = document.getElementById('recenter-btn');
 if (recenterBtn) {
     recenterBtn.addEventListener('click', () => {
         if (currentUserPos) {
+            // **NEW: Smooth animation**
+            recenterBtn.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                recenterBtn.style.transform = 'scale(1)';
+            }, 100);
+            
             map.flyTo({ 
                 center: [currentUserPos.lng, currentUserPos.lat], 
                 zoom: 17,
                 pitch: 45,
-                bearing: 0
+                bearing: 0,
+                duration: 1500,
+                essential: true
             });
             
-            // **NEW: Show accuracy info**
             if (userMarker) {
                 userMarker.togglePopup();
             }
         } else {
-            alert('📍 Getting your location...');
+            // **NEW: Better feedback**
+            showLocationLoading();
             locateUser();
         }
     });
+    
+    // **NEW: Add button transition**
+    recenterBtn.style.transition = 'transform 0.1s ease';
 }
 
 // --- 7. MATH: HAVERSINE DISTANCE FORMULA ---
@@ -873,7 +1008,37 @@ function updateTripInfo(destLoc) {
     const panel = document.getElementById("trip-panel");
     const distEl = document.getElementById("dist-val");
     const timeEl = document.getElementById("time-val");
-    const navBtn = document.getElementById("navigate-btn");
+    
+    // **UPDATED: Smooth Google Maps navigation**
+    const navBtn = document.getElementById('navigate-btn');
+    const userLat = currentUserPos ? currentUserPos.lat : '';
+    const userLng = currentUserPos ? currentUserPos.lng : '';
+    
+    if (navBtn) {
+        // **NEW: Prepare URL immediately (no delay)**
+        const googleMapsUrl = userLat && userLng
+            ? `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${destLoc.lat},${destLoc.lng}&travelmode=walking`
+            : `https://www.google.com/maps/search/?api=1&query=${destLoc.lat},${destLoc.lng}`;
+        
+        navBtn.href = googleMapsUrl;
+        navBtn.target = '_blank';
+        navBtn.rel = 'noopener noreferrer';
+        
+        // **NEW: Remove old onclick if exists**
+        navBtn.onclick = null;
+        
+        // **NEW: Add smooth feedback**
+        navBtn.addEventListener('click', function(e) {
+            // Don't prevent default - let the link work naturally
+            navBtn.innerHTML = 'Opening Maps... 🚀';
+            navBtn.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                navBtn.innerHTML = 'Start Navigation 🚀';
+                navBtn.style.opacity = '1';
+            }, 1500);
+        }, { once: true });
+    }
 
     panel.classList.add("active");
 
@@ -885,11 +1050,6 @@ function updateTripInfo(destLoc) {
             ? Math.round(distanceMeters) + " m" 
             : (distanceMeters / 1000).toFixed(2) + " km";
         timeEl.innerText = timeMinutes + " min";
-
-        // FIXED URL TEMPLATE
-        const navUrl = `https://www.google.com/maps/dir/?api=1&origin=${currentUserPos.lat},${currentUserPos.lng}&destination=${destLoc.lat},${destLoc.lng}&travelmode=walking`;
-
-        navBtn.href = navUrl;
     } else {
         distEl.innerText = "Unknown";
         timeEl.innerText = "--";
@@ -917,29 +1077,26 @@ window.onclick = function(event) {
 const uiContainer = document.querySelector('.ui-container');
 const toggleBtn = document.getElementById('menu-toggle');
 
-toggleBtn.addEventListener('click', () => {
-    // Check if currently open
-    const isOpen = uiContainer.classList.contains('open');
-
-    if (isOpen) {
-        // CLOSE IT
-        uiContainer.classList.remove('open');
-        toggleBtn.classList.remove('active');
-        toggleBtn.innerText = "☰"; // Turn back to Hamburger
-    } else {
-        // OPEN IT
-        uiContainer.classList.add('open');
-        toggleBtn.classList.add('active');
-        toggleBtn.innerText = "×"; // Turn into X
-    }
-});
-
-// Auto-open on load (Optional)
-setTimeout(() => {
-    uiContainer.classList.add('open');
-    toggleBtn.classList.add('active');
-    toggleBtn.innerText = "×";
-}, 500);
+if (toggleBtn && uiContainer) {
+    // **NEW: Add transition CSS**
+    uiContainer.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+    
+    toggleBtn.addEventListener('click', () => {
+        const isOpen = uiContainer.classList.contains('open');
+        if (isOpen) {
+            uiContainer.classList.remove('open');
+            toggleBtn.innerHTML = "☰";
+            toggleBtn.style.transform = 'rotate(0deg)';
+        } else {
+            uiContainer.classList.add('open');
+            toggleBtn.innerHTML = "✕";
+            toggleBtn.style.transform = 'rotate(90deg)';
+        }
+    });
+    
+    // **NEW: Add transition to toggle button**
+    toggleBtn.style.transition = 'transform 0.3s ease';
+}
 
 
 // // --- 11. AI CHATBOT LOGIC ---

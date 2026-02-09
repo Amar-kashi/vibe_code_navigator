@@ -1265,3 +1265,37 @@ body {
 .gallery-thumbnails::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 122, 255, 0.8);
 }
+
+/* --- SMOOTH BUTTON TRANSITIONS --- */
+/* Smooth button transitions */
+.recenter-btn, .toggle-btn, .chat-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.recenter-btn:active, .toggle-btn:active, .chat-btn:active {
+    transform: scale(0.95);
+}
+
+/* Smooth navigation button */
+.nav-btn {
+    transition: all 0.3s ease !important;
+    will-change: transform, opacity;
+}
+
+.nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+}
+
+.nav-btn:active {
+    transform: translateY(0);
+}
+
+/* Smooth panel transitions */
+.trip-panel {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.ui-container {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
