@@ -9,12 +9,32 @@
     
     <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 </head>
 <body>
+
 
     <div id="map"></div>
     <button id="menu-toggle" class="toggle-btn">☰</button>
     <button id="recenter-btn" class="recenter-btn" title="Go to My Location">◎</button>
+    <button id="chat-toggle" class="chat-btn">🤖</button>
+
+    <div class="chat-panel" id="chat-panel">
+        <div class="chat-header">
+            <span>AI Assistant</span>
+            <button id="close-chat" class="close-chat-btn">×</button>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <div class="msg bot">Hello! Ask me to find a location.</div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="Type or speak..." />
+            <button id="mic-btn" class="mic-btn">🎤</button>
+            <button id="send-btn" class="send-btn">➤</button>
+        </div>
+    </div>
 
     <div class="ui-container">
         <header class="app-header">
@@ -37,9 +57,35 @@
         <img class="modal-content" id="modal-img" alt="">
         <div id="caption"></div>
     </div>
+    <!-- Image Gallery Modal -->
+    <div id="gallery-modal" class="gallery-modal">
+        <div class="gallery-container">
+            <button class="gallery-close" id="gallery-close">×</button>
+            <button class="gallery-download" id="gallery-download">
+                <span>⬇</span> Download
+            </button>
+            
+            <img class="gallery-main-image" id="gallery-main-img" src="" alt="">
+            
+            <div class="gallery-info">
+                <div class="gallery-title" id="gallery-title">Reference Image</div>
+                <div class="gallery-counter" id="gallery-counter">1 / 1</div>
+            </div>
+            
+            <div class="gallery-thumbnails" id="gallery-thumbnails"></div>
+            
+            <button class="gallery-nav gallery-nav-prev" id="gallery-prev">‹</button>
+            <button class="gallery-nav gallery-nav-next" id="gallery-next">›</button>
+        </div>
+    </div>
 
-    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    
+    <script src="config.js"></script> 
+
     <script src="script.js"></script>
 
+    <script src="ai_navigate_advanced.js"></script>
 </body>
 </html>
