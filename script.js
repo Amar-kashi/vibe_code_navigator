@@ -23,6 +23,21 @@ function driveLink(url) {
 // --- UPDATED: menuData with Campus Locations ---
 // Replace the entire menuData array in script.js with this section
 
+function openNavigationPanel() {
+    const uiContainer = document.querySelector('.ui-container');
+    const tripPanel = document.getElementById('trip-panel');  // ✅ CORRECT ID
+    
+    if (uiContainer && tripPanel) {
+        uiContainer.classList.add('open');
+        tripPanel.style.display = 'block';
+        setTimeout(() => {
+            tripPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 300);
+        console.log('✅ Navigation panel opened');
+    } else {
+        console.warn('⚠️ Navigation panel not found');
+    }
+}
 const menuData = [
     {
         id: 1,
@@ -189,8 +204,8 @@ const menuData = [
             },
             { 
                 title: "Cucumber", 
-                lat: 11.362166562687062, 
-                lng: 77.82712862469936, 
+                lat: 11.362168730172003, 
+                lng: 77.82712621349708, 
                 zoom: 19,
                 landmark: "Biotech Area"
             },
@@ -419,9 +434,184 @@ const menuData = [
         landmark: "Central Library Building"
     }
 ];
+
+
+// === FUNCTION 2: Hide Chat Navigation (when no destination) ===
+function hideChatNavButton() {
+    const chatNavContainer = document.getElementById('chat-nav-container');
+    if (chatNavContainer) {
+        chatNavContainer.style.display = 'none';
+    }
+}
+
+// === FUNCTION 3: Initialize Chat Navigation Button ===
+function initChatNavigation() {
+    const chatNavBtn = document.getElementById('chat-start-nav-btn');
+    
+    if (chatNavBtn) {
+        chatNavBtn.addEventListener('click', function() {
+            console.log('🧭 Starting navigation from chat...');
+            
+            // Call your existing startNavigation function
+            if (typeof startNavigation === 'function') {
+                startNavigation();
+            } else {
+                console.error('❌ startNavigation function not found!');
+            }
+            
+            // Close chat panel to show the map
+            const chatPanel = document.getElementById('chat-panel');
+            if (chatPanel) {
+                chatPanel.classList.remove('open');
+            }
+            
+            // Open the main navigation panel
+            const uiContainer = document.querySelector('.ui-container');
+            if (uiContainer) {
+                uiContainer.classList.add('open');
+            }
+            
+            // Optional: Show a confirmation message
+            alert('Navigation started! Follow the blue route on the map.');
+        });
+        
+        console.log('✅ Chat navigation button initialized');
+    } else {
+        console.warn('⚠️ Chat navigation button not found in DOM');
+    }
+}
+
+
+// Add this function to update the chat navigation UI
+function updateChatNavButton(destinationName) {
+    const chatNavContainer = document.getElementById('chat-nav-container');
+    const chatDestName = document.getElementById('chat-dest-name');
+    
+    if (chatNavContainer && destinationName) {
+        // Show the navigation container
+        chatNavContainer.style.display = 'block';
+        
+        // Update destination name
+        if (chatDestName) {
+            chatDestName.textContent = destinationName;
+        }
+    }
+}
+
+// Initialize the chat navigation button click handler
+function initChatNavigation() {
+    const chatNavBtn = document.getElementById('chat-start-nav-btn');
+    
+    if (chatNavBtn) {
+        chatNavBtn.addEventListener('click', function() {
+            console.log('🧭 Starting navigation from chat...');
+            
+            // Start navigation
+            if (typeof startNavigation === 'function') {
+                startNavigation();
+            }
+            
+            // Close chat panel
+            const chatPanel = document.getElementById('chat-panel');
+            if (chatPanel) {
+                chatPanel.classList.remove('open');
+            }
+            
+            // Open navigation panel
+            const uiContainer = document.querySelector('.ui-container');
+            if (uiContainer) {
+                uiContainer.classList.add('open');
+            }
+        });
+        
+        console.log('✅ Chat navigation initialized');
+    }
+}
+
+// Call on page load
+document.addEventListener('DOMContentLoaded', initChatNavigation);
+
+// Add click handler for the chat navigation button
+document.addEventListener('DOMContentLoaded', function() {
+    const chatNavBtn = document.getElementById('chat-start-nav-btn');
+    
+    if (chatNavBtn) {
+        chatNavBtn.addEventListener('click', function() {
+            // Start navigation (calls your existing startNavigation function)
+            if (typeof startNavigation === 'function') {
+                startNavigation();
+            }
+            
+            // Optional: Close chat panel to show map
+            const chatPanel = document.getElementById('chat-panel');
+            if (chatPanel) {
+                chatPanel.classList.remove('open');
+            }
+            
+            // Optional: Open navigation panel
+            const uiContainer = document.querySelector('.ui-container');
+            if (uiContainer) {
+                uiContainer.classList.add('open');
+            }
+        });
+    }
+});
+
+
+// === INITIALIZE ON PAGE LOAD ===
+document.addEventListener('DOMContentLoaded', function() {
+    initChatNavigation();
+});
+
+// If DOM is already loaded
+if (document.readyState !== 'loading') {
+    initChatNavigation();
+}
+
 // Store gallery images globally
 let galleryImages = [];
 let currentGalleryIndex = 0;
+
+function showChatWithNavigation(destinationName) {
+    // Update the navigation button
+    updateChatNavButton(destinationName);
+    
+    // Open the chat panel
+    const chatPanel = document.getElementById('chat-panel');
+    if (chatPanel) {
+        chatPanel.classList.add('open');
+    }
+    
+    // Optional: Add a message to chat
+    addChatMessage(`Destination set to: ${destinationName}. Ready to navigate!`, 'bot');
+}
+
+
+function addChatMessage(message, sender = 'bot') {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}-message`;
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.textContent = message;
+    
+    const timestamp = document.createElement('div');
+    timestamp.className = 'message-timestamp';
+    timestamp.textContent = new Date().toLocaleTimeString([], { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+    
+    messageDiv.appendChild(content);
+    messageDiv.appendChild(timestamp);
+    chatMessages.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
 function addChatImage(src, title = "Reference Image") {
     const div = document.createElement('div');
@@ -1386,6 +1576,11 @@ function renderMenu(data, container) {
 function selectLocation(loc) {
     if(!loc.lat || !loc.lng) return;
 
+    // Set global destination variables
+    destinationCoords = [loc.lng, loc.lat];
+    destinationTitle = loc.title || loc.landmark || "Selected Location";
+
+    // Fly to location
     map.flyTo({
         center: [loc.lng, loc.lat], 
         zoom: loc.zoom || 18,
@@ -1393,19 +1588,28 @@ function selectLocation(loc) {
         pitch: 60
     });
 
+    // Update destination marker
     if (destMarker) destMarker.remove();
     
-    // Note: maplibregl instead of mapboxgl
     destMarker = new maplibregl.Marker({ color: '#F44336', scale: 1.2 })
-    .setLngLat([loc.lng, loc.lat])
-    .addTo(map);
+        .setLngLat([loc.lng, loc.lat])
+        .addTo(map);
     
+    // Show image gallery if available
     if(loc.image) {
         if (typeof openImageGallery === 'function') {
             openImageGallery([loc.image], 0, loc.title);
         }
     }
+    
+    // Update trip info panel
     updateTripInfo(loc);
+    
+    // ⭐ Update chat navigation button
+    updateChatNavButton(destinationTitle);
+    
+    // ⭐ Open navigation panel
+    openNavigationPanel();
 }
 // --- 10. RECENTER BUTTON (SMOOTH) ---
 const recenterBtn = document.getElementById('recenter-btn');

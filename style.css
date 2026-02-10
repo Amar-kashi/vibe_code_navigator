@@ -1541,3 +1541,113 @@ body {
 .ui-container.open {
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+
+.chat-nav-container {
+    padding: 15px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 12px;
+    margin: 15px 10px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    text-align: center;
+}
+
+.chat-nav-info {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.chat-nav-destination {
+    color: #667eea;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 8px 0 12px 0;
+}
+
+.chat-start-nav-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    max-width: 280px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.chat-start-nav-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.chat-start-nav-btn:active {
+    transform: translateY(0);
+}
+
+.chat-start-nav-btn i {
+    font-size: 18px;
+}
+
+/* === CHAT NAVIGATION STYLES === */
+.chat-nav-container {
+    padding: 15px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 12px;
+    margin: 15px 10px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    text-align: center;
+}
+
+.chat-nav-info {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.chat-nav-destination {
+    color: #667eea;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 8px 0 12px 0;
+}
+
+.chat-start-nav-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    max-width: 280px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.chat-start-nav-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.chat-start-nav-btn:active {
+    transform: translateY(0);
+}
+
+.chat-start-nav-btn i {
+    font-size: 18px;
+}

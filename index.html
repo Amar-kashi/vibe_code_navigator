@@ -26,8 +26,19 @@
         </div>
         
         <div class="chat-messages" id="chat-messages">
-            <div class="msg bot">Hello! Ask me to find a location.</div>
+        <!-- ⭐ ADD THIS BLOCK ⭐ -->
+        <div id="chat-nav-container" class="chat-nav-container" >
+            <div class="chat-nav-info">📍 Ready to Navigate</div>
+            <div class="chat-nav-destination" id="chat-dest-name">Select a destination</div>
+            <button class="chat-start-nav-btn" id="chat-start-nav-btn">
+                <i class="fas fa-directions"></i>
+                Start Navigation
+            </button>
         </div>
+    <!-- ⭐ END OF NEW BLOCK ⭐ -->
+    
+    <div class="msg bot">Hello! Ask me to find a location.</div>
+</div>
 
         <div class="chat-input-area">
             <input type="text" id="user-input" placeholder="Type or speak..." />
