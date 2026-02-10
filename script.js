@@ -32,11 +32,11 @@ const menuData = [
                 title: "Boys",
                 children: [
                     { 
-                        title: "Adamic Block", 
+                        title: "Academic Block", 
                         lat: 11.358643, 
                         lng: 77.828868, 
                         zoom: 19,
-                        landmark: "Near lift, Adamic Block",
+                        landmark: "Near lift, Academic Block",
                         children: [
                             { title: "Floor 1", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Floor 1 - Adamic Block" },
                             { title: "Floor 3", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Floor 3 - Adamic Block" },
@@ -101,11 +101,11 @@ const menuData = [
                 title: "Girls",
                 children: [
                     { 
-                        title: "Adamic Block", 
+                        title: "Academic Block", 
                         lat: 11.358643, 
                         lng: 77.828868, 
                         zoom: 19,
-                        landmark: "Near lift, Adamic Block",
+                        landmark: "Near lift, Academic Block",
                         children: [
                             { title: "Ground Floor", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Ground - Adamic Block" },
                             { title: "Floor 2", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Floor 2 - Adamic Block" },
@@ -181,7 +181,7 @@ const menuData = [
                 landmark: "Main Canteen Building"
             },
             { 
-                title: "Westmark", 
+                title: "Westmart", 
                 lat: 11.358436827495437, 
                 lng: 77.82679604292073, 
                 zoom: 19,
@@ -263,7 +263,7 @@ const menuData = [
                 landmark: "Water Point - Cinnamon Block"
             },
             { 
-                title: "Westmark", 
+                title: "Westmart", 
                 lat: 11.358436827495437, 
                 lng: 77.82679604292073, 
                 zoom: 19,
@@ -305,11 +305,11 @@ const menuData = [
                 landmark: "Water Point - Incubation"
             },
             { 
-                title: "Adamic Block", 
+                title: "Academic Block", 
                 lat: 11.358643, 
                 lng: 77.828868, 
                 zoom: 19,
-                landmark: "Water Point - Adamic Block",
+                landmark: "Water Point - Academic Block",
                 children: [
                     { title: "Ground Floor", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Ground - Adamic Block" },
                     { title: "Floor 3", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Floor 3 - Adamic Block" },
@@ -950,7 +950,11 @@ function selectLocation(loc) {
     .setLngLat([loc.lng, loc.lat])
     .addTo(map);
     
-    if(loc.image) openModal(loc.image, loc.title);
+    if(loc.image) {
+        if (typeof openImageGallery === 'function') {
+            openImageGallery([loc.image], 0, loc.title);
+        }
+    }
     updateTripInfo(loc);
 }
 // --- 10. RECENTER BUTTON (SMOOTH) ---
@@ -1057,21 +1061,9 @@ function updateTripInfo(destLoc) {
 }
 
 // --- 8. MODAL LOGIC (Unchanged) ---
-const modal = document.getElementById("image-modal");
-const modalImg = document.getElementById("modal-img");
-const captionText = document.getElementById("caption");
-const closeBtn = document.getElementsByClassName("close-btn")[0];
+// Old modal removed - now using gallery-modal
+// Gallery functionality handled in ai_navigate_advanced.js
 
-function openModal(src, caption) {
-    modal.style.display = "block";
-    modalImg.src = src;
-    if(captionText) captionText.innerHTML = caption;
-}
-
-if(closeBtn) closeBtn.onclick = function() { modal.style.display = "none"; }
-window.onclick = function(event) {
-    if (event.target == modal) { modal.style.display = "none"; }
-}
 
 // --- 9. SIDEBAR TOGGLE LOGIC (Single Button) ---
 const uiContainer = document.querySelector('.ui-container');
@@ -1411,5 +1403,191 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+
+// === SYNC BUTTONS WITH UI PANEL MOVEMENT ===
+// Makes chat-btn, recenter-btn, and map controls move with ui-container on mobile
+
+class UIContainerButtonSync {
+    constructor() {
+        this.uiContainer = document.querySelector('.ui-container');
+        this.chatBtn = document.getElementById('chat-toggle');
+        this.recenterBtn = document.getElementById('recenter-btn');
+        this.mapControls = document.querySelector('.maplibregl-ctrl-bottom-right');
+        this.mapAttrButton = document.querySelector('.maplibregl-ctrl-attrib-button');
+        
+        this.isMobile = window.innerWidth <= 768;
+        this.panelHeight = 0;
+        this.panelTop = 0;
+        
+        if (!this.uiContainer) {
+            console.warn("UI Container not found");
+            return;
+        }
+        
+        this.init();
+    }
+    
+    init() {
+        console.log("✅ UI Container Button Sync initialized");
+        
+        // Watch for panel open/close
+        this.observePanelChanges();
+        
+        // Listen for resize to check if mobile
+        window.addEventListener('resize', () => {
+            this.isMobile = window.innerWidth <= 768;
+            this.updateButtonPositions();
+        });
+        
+        // Listen for orientation change
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => this.updateButtonPositions(), 100);
+        });
+        
+        // Continuous sync
+        setInterval(() => this.updateButtonPositions(), 100);
+        
+        // Initial position update
+        this.updateButtonPositions();
+    }
+    
+    observePanelChanges() {
+        // Observe class changes on ui-container
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    this.updateButtonPositions();
+                }
+            });
+        });
+        
+        observer.observe(this.uiContainer, { 
+            attributes: true, 
+            attributeFilter: ['class'] 
+        });
+    }
+    
+    updateButtonPositions() {
+        if (!this.isMobile) {
+            // Desktop - no syncing needed
+            this.resetDesktopPositions();
+            return;
+        }
+        
+        // Mobile - sync with panel
+        this.syncWithPanel();
+    }
+    
+    syncWithPanel() {
+        const panelRect = this.uiContainer.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        
+        // Get panel transform if it's sliding
+        const transform = window.getComputedStyle(this.uiContainer).transform;
+        const isOpen = this.uiContainer.classList.contains('open');
+        
+        // Calculate panel position
+        this.panelTop = panelRect.top;
+        this.panelHeight = panelRect.height;
+        
+        // Calculate button positions based on panel
+        const chatBtnPosition = this.panelTop - 70;
+        const recenterBtnPosition = this.panelTop - 130;
+        const mapControlsPosition = this.panelTop - 100;
+        
+        // Update chat button position
+        if (this.chatBtn) {
+            if (isOpen && this.panelTop < viewportHeight * 0.8) {
+                // Panel is open and visible - move buttons above it
+                this.chatBtn.style.position = 'fixed';
+                this.chatBtn.style.bottom = 'auto';
+                this.chatBtn.style.top = `${chatBtnPosition}px`;
+                this.chatBtn.style.zIndex = '50';
+                this.chatBtn.style.transition = 'top 0.2s ease-out';
+                this.chatBtn.classList.add('synced-with-panel');
+            } else {
+                // Panel closed - return to normal position
+                this.chatBtn.style.position = 'fixed';
+                this.chatBtn.style.bottom = 'calc(10vh + 20px)';
+                this.chatBtn.style.top = 'auto';
+                this.chatBtn.classList.remove('synced-with-panel');
+            }
+        }
+        
+        // Update recenter button position
+        if (this.recenterBtn) {
+            if (isOpen && this.panelTop < viewportHeight * 0.8) {
+                this.recenterBtn.style.position = 'fixed';
+                this.recenterBtn.style.bottom = 'auto';
+                this.recenterBtn.style.top = `${recenterBtnPosition}px`;
+                this.recenterBtn.style.zIndex = '49';
+                this.recenterBtn.style.transition = 'top 0.2s ease-out';
+                this.recenterBtn.classList.add('synced-with-panel');
+            } else {
+                this.recenterBtn.style.position = 'fixed';
+                this.recenterBtn.style.bottom = 'calc(10vh + 20px)';
+                this.recenterBtn.style.top = 'auto';
+                this.recenterBtn.classList.remove('synced-with-panel');
+            }
+        }
+        
+        // Update map controls
+        if (this.mapControls) {
+            if (isOpen && this.panelTop < viewportHeight * 0.8) {
+                this.mapControls.style.position = 'fixed';
+                this.mapControls.style.bottom = 'auto';
+                this.mapControls.style.top = `${mapControlsPosition}px`;
+                this.mapControls.style.right = '16px';
+                this.mapControls.style.transition = 'top 0.2s ease-out';
+                this.mapControls.classList.add('synced-with-panel');
+            } else {
+                this.mapControls.style.position = 'absolute';
+                this.mapControls.style.bottom = '62vh';
+                this.mapControls.style.top = 'auto';
+                this.mapControls.classList.remove('synced-with-panel');
+            }
+        }
+    }
+    
+    resetDesktopPositions() {
+        // Reset to normal desktop positions
+        if (this.chatBtn) {
+            this.chatBtn.style.position = 'absolute';
+            this.chatBtn.style.bottom = '180px';
+            this.chatBtn.style.top = 'auto';
+            this.chatBtn.classList.remove('synced-with-panel');
+        }
+        
+        if (this.recenterBtn) {
+            this.recenterBtn.style.position = 'absolute';
+            this.recenterBtn.style.bottom = '120px';
+            this.recenterBtn.style.top = 'auto';
+            this.recenterBtn.classList.remove('synced-with-panel');
+        }
+        
+        if (this.mapControls) {
+            this.mapControls.style.position = 'absolute';
+            this.mapControls.style.bottom = '0';
+            this.mapControls.style.top = 'auto';
+            this.mapControls.classList.remove('synced-with-panel');
+        }
+    }
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.uiButtonSync = new UIContainerButtonSync();
+    });
+} else {
+    window.uiButtonSync = new UIContainerButtonSync();
+}
+
+// Handle visibility changes
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && window.uiButtonSync) {
+        window.uiButtonSync.updateButtonPositions();
+    }
+});
 // Start everything
 initMap();

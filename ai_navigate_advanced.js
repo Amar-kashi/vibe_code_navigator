@@ -7,10 +7,20 @@ let flatLocations = [];
 function flattenData(items, parentName = "") {
     items.forEach(item => {
         const fullTitle = parentName ? `${parentName} ${item.title}` : item.title;
+        
+        // Handle both leaf nodes AND nodes with lat/lng (even if they have children)
+        if (item.lat && item.lng) {
+            flatLocations.push({ 
+                ...item, 
+                fullName: fullTitle,
+                landmark: item.landmark || null,
+                floors: item.floors || null
+            });
+        }
+        
+        // Process children if they exist
         if (item.children) {
             flattenData(item.children, fullTitle);
-        } else {
-            flatLocations.push({ ...item, fullName: fullTitle });
         }
     });
 }
