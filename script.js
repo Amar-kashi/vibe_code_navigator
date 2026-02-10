@@ -749,35 +749,107 @@ function showLocationLoading() {
     const indicator = document.createElement('div');
     indicator.id = 'location-loading';
     indicator.innerHTML = `
-        <div style="
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #4CAF50;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-        ">
-            <div style="
+        <style>
+            .location-loading-container {
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #4CAF50;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 25px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 500;
+                max-width: 90%;
+                animation: slideDown 0.3s ease;
+            }
+            
+            .loading-spinner {
                 width: 20px;
                 height: 20px;
                 border: 3px solid white;
                 border-top-color: transparent;
                 border-radius: 50%;
                 animation: spin 1s linear infinite;
-            "></div>
-            Finding your location...
-        </div>
-        <style>
+                flex-shrink: 0;
+            }
+            
+            .loading-text {
+                font-size: 15px;
+                white-space: nowrap;
+            }
+            
             @keyframes spin {
                 to { transform: rotate(360deg); }
+            }
+            
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translate(-50%, -20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translate(-50%, 0);
+                }
+            }
+            
+            /* Mobile Optimizations */
+            @media (max-width: 768px) {
+                .location-loading-container {
+                    top: 10px;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    max-width: calc(100% - 40px);
+                    font-size: 14px;
+                }
+                
+                .loading-spinner {
+                    width: 18px;
+                    height: 18px;
+                    border-width: 2.5px;
+                }
+                
+                .loading-text {
+                    font-size: 14px;
+                }
+            }
+            
+            /* Small phones (iPhone SE, etc.) */
+            @media (max-width: 375px) {
+                .location-loading-container {
+                    padding: 8px 16px;
+                    gap: 8px;
+                }
+                
+                .loading-spinner {
+                    width: 16px;
+                    height: 16px;
+                    border-width: 2px;
+                }
+                
+                .loading-text {
+                    font-size: 13px;
+                }
+            }
+            
+            /* Landscape mode on mobile */
+            @media (max-width: 768px) and (orientation: landscape) {
+                .location-loading-container {
+                    top: 8px;
+                    padding: 8px 16px;
+                    font-size: 13px;
+                }
+                
+                .loading-spinner {
+                    width: 16px;
+                    height: 16px;
+                }
             }
         </style>
     `;
@@ -796,105 +868,483 @@ function hideLocationLoading() {
 // **NEW: Handle location errors with helpful messages**
 function handleLocationError(error) {
     let message = '';
-    let actionButton = '';
+    let actionButtons = '';
 
     switch(error.code) {
         case error.PERMISSION_DENIED:
             message = `
-                <b>📍 Location Access Denied</b><br><br>
-                To use navigation, please:<br>
-                1. Click the 🔒 lock icon in your browser's address bar<br>
-                2. Allow location access for this site<br>
-                3. Refresh the page<br><br>
-                Or drag the green pin to your location manually.
+                <div class="error-icon">🔒</div>
+                <b class="error-title">Location Access Denied</b>
+                <p class="error-description">
+                    To use navigation, please enable location access:
+                </p>
+                <ol class="error-steps">
+                    <li>Tap the <b>🔒 lock icon</b> in your browser's address bar</li>
+                    <li>Select <b>"Allow"</b> for location access</li>
+                    <li>Refresh this page</li>
+                </ol>
+                <p class="error-alternative">
+                    <small>Or drag the green pin 📍 to your location manually</small>
+                </p>
             `;
-            actionButton = `
-                <button onclick="locateUser()" style="
-                    background: #4CAF50;
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 20px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    margin-top: 10px;
-                ">Try Again</button>
+            actionButtons = `
+                <button onclick="locateUser()" class="error-btn primary">
+                    <span class="btn-icon">🔄</span> Try Again
+                </button>
+                <button onclick="closeErrorModal()" class="error-btn close-btn">
+                    Close
+                </button>
+                <button onclick="showLocationHelp()" class="error-btn secondary">
+                    <span class="btn-icon">❓</span> Help
+                </button>
             `;
             break;
+            
         case error.POSITION_UNAVAILABLE:
             message = `
-                <b>📍 Location Unavailable</b><br><br>
-                Your device cannot determine your location.<br>
-                Please check that:<br>
-                • Location services are enabled on your device<br>
-                • You have an internet connection<br>
-                • You're not in airplane mode
+                <div class="error-icon">📡</div>
+                <b class="error-title">Location Unavailable</b>
+                <p class="error-description">
+                    Your device cannot determine your location.
+                </p>
+                <ul class="error-checklist">
+                    <li>✓ Location services are enabled</li>
+                    <li>✓ Internet connection is active</li>
+                    <li>✓ Airplane mode is off</li>
+                    <li>✓ You're in an open area</li>
+                </ul>
+            `;
+            actionButtons = `
+                <button onclick="locateUser()" class="error-btn primary">
+                    <span class="btn-icon">🔄</span> Retry
+                </button>
+                <button onclick="closeErrorModal()" class="error-btn close-btn">
+                    Close
+                </button>
+                <button onclick="openSettings()" class="error-btn secondary">
+                    <span class="btn-icon">⚙️</span> Settings
+                </button>
             `;
             break;
+            
         case error.TIMEOUT:
             message = `
-                <b>⏱️ Location Request Timed Out</b><br><br>
-                Taking too long to find your location.<br>
-                Try moving to an area with better signal.
+                <div class="error-icon">⏱️</div>
+                <b class="error-title">Location Request Timed Out</b>
+                <p class="error-description">
+                    Taking too long to find your location.
+                </p>
+                <div class="error-tip">
+                    💡 <b>Tip:</b> Move to an area with better GPS signal (outdoors, near windows)
+                </div>
             `;
-            actionButton = `
-                <button onclick="locateUser()" style="
-                    background: #4CAF50;
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 20px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    margin-top: 10px;
-                ">Retry</button>
+            actionButtons = `
+                <button onclick="locateUser()" class="error-btn primary">
+                    <span class="btn-icon">📍</span> Retry Location
+                </button>
+                <button onclick="closeErrorModal()" class="error-btn close-btn">
+                    Close
+                </button>
+                <button onclick="setManualLocation()" class="error-btn secondary">
+                    <span class="btn-icon">📌</span> Set Manually
+                </button>
             `;
             break;
+            
+        default:
+            message = `
+                <div class="error-icon">⚠️</div>
+                <b class="error-title">Location Error</b>
+                <p class="error-description">
+                    Something went wrong while getting your location.
+                </p>
+            `;
+            actionButtons = `
+                <button onclick="locateUser()" class="error-btn primary">
+                    <span class="btn-icon">🔄</span> Try Again
+                </button>
+                <button onclick="closeErrorModal()" class="error-btn close-btn">
+                    Close
+                </button>
+            `;
     }
 
-    showLocationError(message + actionButton);
+    showLocationError(message, actionButtons);
 }
 
-function showLocationError(message) {
+// Updated showLocationError to accept separate message and buttons
+function showLocationError(message, actionButtons = '') {
     const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-modal-wrapper';
     errorDiv.innerHTML = `
-        <div style="
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            z-index: 10001;
-            max-width: 400px;
-            text-align: center;
-        ">
-            ${message}
-            <button onclick="this.parentElement.parentElement.remove()" style="
-                background: #666;
-                color: white;
-                border: none;
-                padding: 10px 20px;
+        <div class="error-backdrop" onclick="closeErrorModal()"></div>
+        <div class="error-dialog">
+            <div class="error-content">
+                ${message}
+            </div>
+            <div class="error-actions">
+                ${actionButtons}
+            </div>
+            
+        
+        <style>
+            .error-modal-wrapper {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 10001;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            .error-backdrop {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.6);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+            
+            .error-dialog {
+                background: white;
                 border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                max-width: 420px;
+                width: 100%;
+                position: relative;
+                animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                overflow: hidden;
+            }
+            
+            .error-content {
+                padding: 30px;
+                text-align: center;
+            }
+            
+            .error-icon {
+                font-size: 48px;
+                margin-bottom: 16px;
+                animation: bounce 0.6s ease;
+            }
+            
+            .error-title {
+                display: block;
+                font-size: 20px;
+                color: #333;
+                margin-bottom: 12px;
+            }
+            
+            .error-description {
+                color: #666;
+                font-size: 15px;
+                margin: 12px 0;
+                line-height: 1.6;
+            }
+            
+            .error-steps {
+                text-align: left;
+                margin: 16px 0;
+                padding-left: 20px;
+                color: #555;
+                line-height: 1.8;
+            }
+            
+            .error-steps li {
+                margin: 8px 0;
+            }
+            
+            .error-checklist {
+                list-style: none;
+                padding: 0;
+                margin: 16px 0;
+                text-align: left;
+                color: #555;
+            }
+            
+            .error-checklist li {
+                padding: 8px 12px;
+                margin: 4px 0;
+                background: #f5f5f5;
+                border-radius: 8px;
+                font-size: 14px;
+            }
+            
+            .error-tip {
+                background: #fff3cd;
+                border-left: 4px solid #ffc107;
+                padding: 12px;
+                margin: 16px 0;
+                border-radius: 8px;
+                text-align: left;
+                font-size: 14px;
+                color: #856404;
+            }
+            
+            .error-alternative {
+                margin-top: 16px;
+                color: #999;
+                font-size: 13px;
+            }
+            
+            .error-actions {
+                padding: 20px;
+                background: #f9f9f9;
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .error-close-section {
+                padding: 0 20px 20px;
+                background: #f9f9f9;
+            }
+            
+            .error-close-section .error-btn {
+                width: 100%;
+            }
+            .error-btn {
+                border: none;
+                padding: 12px 24px;
+                border-radius: 12px;
                 cursor: pointer;
                 font-weight: 600;
-                margin-top: 10px;
-                margin-left: 10px;
-            ">Close</button>
-        </div>
-        <div style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 10000;
-        " onclick="this.parentElement.remove()"></div>
+                font-size: 15px;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                flex: 1;
+                min-width: 120px;
+                justify-content: center;
+            }
+            
+            .error-btn.primary {
+                background: linear-gradient(135deg, #4CAF50, #45a049);
+                color: white;
+                box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+            }
+            
+            .error-btn.primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+            }
+            
+            .error-btn.primary:active {
+                transform: translateY(0);
+            }
+            
+            .error-btn.secondary {
+                background: white;
+                color: #666;
+                border: 2px solid #e0e0e0;
+            }
+            
+            .error-btn.secondary:hover {
+                background: #f5f5f5;
+                border-color: #ccc;
+            }
+            
+            .error-btn.close-btn {
+                background: #f5f5f5;
+                color: #666;
+            }
+            
+            .error-btn.close-btn:hover {
+                background: #e0e0e0;
+            }
+            
+            .btn-icon {
+                font-size: 16px;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(40px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+            
+            /* Mobile Optimizations */
+            @media (max-width: 768px) {
+                .error-modal-wrapper {
+                    padding: 0;
+                    align-items: flex-end;
+                }
+                
+                .error-dialog {
+                    max-width: 100%;
+                    border-radius: 20px 20px 0 0;
+                    max-height: 85vh;
+                    overflow-y: auto;
+                }
+                
+                .error-content {
+                    padding: 24px 20px;
+                }
+                
+                .error-icon {
+                    font-size: 42px;
+                    margin-bottom: 12px;
+                }
+                
+                .error-title {
+                    font-size: 18px;
+                }
+                
+                .error-description {
+                    font-size: 14px;
+                }
+                
+                .error-steps, .error-checklist {
+                    font-size: 13px;
+                }
+                
+                .error-actions {
+                    padding: 16px;
+                    flex-direction: column;
+                }
+                
+                .error-btn {
+                    width: 100%;
+                    min-width: auto;
+                    padding: 14px 20px;
+                }
+                
+                .error-btn.close-btn {
+                    order: 10;
+                }
+            }
+            
+            /* Small phones */
+            @media (max-width: 375px) {
+                .error-content {
+                    padding: 20px 16px;
+                }
+                
+                .error-icon {
+                    font-size: 38px;
+                }
+                
+                .error-title {
+                    font-size: 17px;
+                }
+                
+                .error-btn {
+                    font-size: 14px;
+                    padding: 12px 18px;
+                }
+            }
+        </style>
     `;
     document.body.appendChild(errorDiv);
+}
+
+// Helper functions
+function closeErrorModal() {
+    const modal = document.querySelector('.error-modal-wrapper');
+    if (modal) {
+        modal.style.opacity = '0';
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+function showLocationHelp() {
+    closeErrorModal();
+    const helpMsg = `
+        <div class="error-icon">💡</div>
+        <b class="error-title">How to Enable Location</b>
+        <div class="error-steps">
+            <p><b>On Mobile:</b></p>
+            <ol>
+                <li>Open your phone's Settings</li>
+                <li>Find "Location" or "Privacy"</li>
+                <li>Turn ON location services</li>
+                <li>Return to this page and refresh</li>
+            </ol>
+            <p><b>On Desktop:</b></p>
+            <ol>
+                <li>Click the 🔒 icon in address bar</li>
+                <li>Find "Location" permission</li>
+                <li>Select "Allow"</li>
+                <li>Refresh the page</li>
+            </ol>
+        </div>
+        <p class="error-alternative">
+            Need more help? Call: <a href="tel:+919882549996" style="color: #4CAF50; font-weight: 600;">+91 9882549996</a>
+        </p>
+    `;
+    const buttons = `
+        <button onclick="window.location.reload()" class="error-btn primary">
+            <span class="btn-icon">🔄</span> Refresh Page
+        </button>
+    `;
+    showLocationError(helpMsg, buttons);
+}
+
+function openSettings() {
+    alert('Please open your device Settings app to enable location services, then return to this page.');
+}
+
+function setManualLocation() {
+    closeErrorModal();
+    const lat = prompt('Enter Latitude (e.g., 11.358643):');
+    const lng = prompt('Enter Longitude (e.g., 77.828868):');
+    
+    if (lat && lng) {
+        const newLat = parseFloat(lat);
+        const newLng = parseFloat(lng);
+        
+        if (!isNaN(newLat) && !isNaN(newLng)) {
+            currentUserPos = { lat: newLat, lng: newLng };
+            
+            if (!userMarker) {
+                userMarker = new maplibregl.Marker({ 
+                    color: '#4CAF50', 
+                    scale: 1.2,
+                    draggable: true 
+                }) 
+                    .setLngLat([newLng, newLat])
+                    .setPopup(new maplibregl.Popup().setHTML("<b>📍 Manual Location</b>"))
+                    .addTo(map);
+            } else {
+                userMarker.setLngLat([newLng, newLat]);
+            }
+            
+            map.flyTo({ center: [newLng, newLat], zoom: 17 });
+            
+            const successMsg = `
+                <div class="error-icon">✅</div>
+                <b class="error-title">Location Set Successfully!</b>
+                <p class="error-description">Your location has been set manually. You can now use navigation features.</p>
+            `;
+            showLocationError(successMsg, '');
+            setTimeout(closeErrorModal, 2000);
+        } else {
+            alert('Invalid coordinates. Please enter valid numbers.');
+        }
+    }
 }
 
 // --- 5. RENDER MENU (Recursive - Unchanged) ---
@@ -1322,46 +1772,48 @@ if (toggleBtn && uiContainer) {
 //     }
 // }
 
-// // --- ADD THIS MISSING FUNCTION ---
-// function handleNearestRequest(category) {
-//     if (!currentUserPos) {
-//         addMessage("I need your location first.", 'bot');
-//         locateUser();
-//         return;
-//     }
+// --- ADD THIS MISSING FUNCTION ---
+
+
+function handleNearestRequest(category) {
+    if (!currentUserPos) {
+        addMessage("I need your location first.", 'bot');
+        locateUser();
+        return;
+    }
     
-//     // 1. Find all locations that match the category (e.g. "Canteens")
-//     const candidates = flatLocations.filter(loc => 
-//         loc.fullName.toLowerCase().includes(category.toLowerCase())
-//     );
+    // 1. Find all locations that match the category (e.g. "Canteens")
+    const candidates = flatLocations.filter(loc => 
+        loc.fullName.toLowerCase().includes(category.toLowerCase())
+    );
 
-//     if (candidates.length === 0) {
-//         addMessage("No matches found for that category.", 'bot');
-//         return;
-//     }
+    if (candidates.length === 0) {
+        addMessage("No matches found for that category.", 'bot');
+        return;
+    }
 
-//     // 2. Calculate distances
-//     let bestLoc = null;
-//     let minDist = Infinity;
+    // 2. Calculate distances
+    let bestLoc = null;
+    let minDist = Infinity;
 
-//     candidates.forEach(loc => {
-//         if(loc.lat && loc.lng) {
-//             const dist = getDistance(currentUserPos.lat, currentUserPos.lng, loc.lat, loc.lng);
-//             if (dist < minDist) { 
-//                 minDist = dist; 
-//                 bestLoc = loc; 
-//             }
-//         }
-//     });
+    candidates.forEach(loc => {
+        if(loc.lat && loc.lng) {
+            const dist = getDistance(currentUserPos.lat, currentUserPos.lng, loc.lat, loc.lng);
+            if (dist < minDist) { 
+                minDist = dist; 
+                bestLoc = loc; 
+            }
+        }
+    });
 
-//     // 3. Navigate to the closest one
-//     if (bestLoc) {
-//         const distText = minDist < 1000 ? Math.round(minDist) + "m" : (minDist/1000).toFixed(1) + "km";
-//         addMessage(`The nearest is ${bestLoc.title} (${distText} away).`, 'bot');
-//         speak(`The nearest is ${bestLoc.title}`);
-//         selectLocation(bestLoc);
-//     }
-// }
+    // 3. Navigate to the closest one
+    if (bestLoc) {
+        const distText = minDist < 1000 ? Math.round(minDist) + "m" : (minDist/1000).toFixed(1) + "km";
+        addMessage(`The nearest is ${bestLoc.title} (${distText} away).`, 'bot');
+        speak(`The nearest is ${bestLoc.title}`);
+        selectLocation(bestLoc);
+    }
+}
 
 
 // --- MANUAL LOCATION OVERRIDE (For Testing/Poor GPS) ---

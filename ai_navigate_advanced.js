@@ -122,7 +122,7 @@ function initializeAI() {
     
     // Show welcome message
     setTimeout(() => {
-        const welcomeMsg = `<b>👋 Welcome!</b><br>I can help you find:<br>• Canteens 🍽️<br>• Restrooms 🚻<br>• Hostels 🏠<br>• Venues 📚<br>• Water Points 💧<br><br>Try: <i>"Find food"</i> or <i>"Nearest toilet"</i>`;
+        const welcomeMsg = `<b>👋 Hi — I'm Vibe Guide!</b><br>I can help you find places on campus:<br>• Canteens 🍽️ • Restrooms 🚻 • Hostels 🏠 • Venues 📚 • Water Points 💧<br><br>Try: <i>"Find food"</i>, <i>"Nearest toilet"</i>, or ask <i>"Where's the library?"</i><br><br>If this is an urgent emergency, type <b>"emergency"</b> and I'll show local helplines.`;
         addHTMLMessage(welcomeMsg, 'bot');
     }, 500);
 }
@@ -149,20 +149,36 @@ function createFuse() {
 }
 
 // 8. CORE BRAIN FUNCTION (ENHANCED)
+// Conversation context tracking for follow-ups
+let conversationContext = {
+    lastIntent: null,
+    lastQuery: null,
+    pendingFollowUp: null // e.g. { type: 'show_alternatives' }
+};
+
+function updateContext(intent, query, extras = {}) {
+    conversationContext.lastIntent = intent;
+    conversationContext.lastQuery = query;
+    conversationContext.pendingFollowUp = extras.pendingFollowUp || null;
+}
+
 function processCommand(rawText) {
     const text = rawText.toLowerCase().trim();
     if(!text) return;
 
     addMessage(rawText, 'user');
 
-    // A. NUMBER SELECTION MODE
-    if (awaitingNumberSelection && /^[1-3]$/.test(text)) {
+    // A. NUMBER SELECTION MODE (Enhanced for 1-9)
+    if (awaitingNumberSelection && /^[1-9]$/.test(text)) {
         const index = parseInt(text) - 1;
         if (index >= 0 && index < pendingResults.length) {
             const selected = pendingResults[index];
             navigateToLocation(selected);
             awaitingNumberSelection = false;
             pendingResults = [];
+            return;
+        } else {
+            botReply(`Please select a number between 1 and ${pendingResults.length}`);
             return;
         }
     }
@@ -171,15 +187,61 @@ function processCommand(rawText) {
     awaitingNumberSelection = false;
     pendingResults = [];
 
+    // FOLLOW-UP YES/NO HANDLING (if a question was pending)
+    if (conversationContext.pendingFollowUp && (text === 'yes' || text === 'no' || text.startsWith('y') || text.startsWith('n'))) {
+        const ansYes = text.startsWith('y');
+        const pf = conversationContext.pendingFollowUp;
+        if (pf && pf.type === 'show_alternatives') {
+            if (ansYes) {
+                // show nearby alternatives
+                if (typeof locateUser === 'function' && !currentUserPos) {
+                    botReply('Okay, I will try to get your location to show nearby options.');
+                    if(typeof locateUser === 'function') locateUser();
+                } else if (pf.query) {
+                    processCommand(pf.query + ' near me');
+                } else {
+                    botReply('Okay — what type of places should I look for?');
+                }
+            } else {
+                botReply('Okay, let me know if you need anything else.');
+            }
+            conversationContext.pendingFollowUp = null;
+            return;
+        }
+        if (pf && pf.type === 'call_security') {
+            if (ansYes) {
+                botReply('Calling Campus Security now...');
+                // fallback phone number
+                try { window.open('tel:+1234567890'); } catch (e) {}
+            } else {
+                botReply('Okay, I will not call. Stay safe.');
+            }
+            conversationContext.pendingFollowUp = null;
+            return;
+        }
+        // generic confirmation
+        conversationContext.pendingFollowUp = null;
+    }
+    // A. Detect "all" or "every" requests
+    const isShowAllRequest = text.match(/all|every|show (me )?all|give (me )?all|list all/);
     // B. Small Talk
     if (text.match(/^(hi|hello|hey|sup|yo)/)) {
         const reply = "Hello! 👋 Where would you like to go? Try <b>'Find food'</b>, <b>'Nearest toilet'</b>, or <b>'Show hostels'</b>.";
         addHTMLMessage(reply, 'bot');
+        updateContext('greeting', rawText);
+        return;
+    }
+
+    // Emergency immediate path
+    if (text.match(/\b(emergency|help me|ambulance|police|fire|urgent)\b/)) {
+        showEmergencyHelp();
+        updateContext('emergency', rawText, { pendingFollowUp: null });
         return;
     }
 
     // C. Show alternatives / other options
     if (text.match(/other|another|different|more|alternatives|show all/)) {
+        updateContext('show_alternatives', rawText);
         if (pendingResults.length > 0) {
             // Show next set of results
             botReply("Here are all the options again:");
@@ -192,20 +254,48 @@ function processCommand(rawText) {
 
     // D. Help/Confused
     if (text.match(/help|what can you do|commands/)) {
-        const helpMsg = `<b>I can help you:</b><br>• Find locations: "Find food"<br>• Get nearest: "Nearest toilet"<br>• Show category: "Show canteens"<br>• Quick select: Reply with 1, 2, or 3`;
-        addHTMLMessage(helpMsg, 'bot');
+        showHelpMessage();
+        updateContext('help', rawText);
         return;
     }
 
-    // D. NEAREST Logic
-    if (text.includes("nearest") || text.includes("closest") || text.includes("near me")) {
-        // Try to find category from synonyms
-        const foundCategory = getCategoryFromSynonym(text);
+    // C. "Show all" / "Give all" requests
+    if (text.match(/show all|give all|list all|all the|show me all/)) {
+        let category = text.replace(/(show|give|list|all|the|me)/g, "").trim();
+        
+        // Map to category
+        const foundCategory = getCategoryFromSynonym(category);
+        
         if (foundCategory) {
-            handleNearestRequest(foundCategory);
-        } else {
-            botReply("What location type are you looking for? Try: food, toilet, hostel, water, or gym.");
+            const matches = flatLocations.filter(loc => 
+                loc.fullName.includes(foundCategory)
+            );
+            
+            if (matches.length > 0) {
+                // Show ALL results with distances
+                if (currentUserPos) {
+                    handleMultipleResults(matches, true);
+                } else {
+                    handleMultipleResults(matches.slice(0, 5), false);
+                }
+                updateContext(text, foundCategory);
+                return;
+            }
         }
+    }
+
+    // D. NEAREST Logic (ONLY if not "show all")
+    if (!isShowAllRequest && (text.includes("nearest") || text.includes("closest") || text.includes("near me"))) {
+        let category = text.replace(/(nearest|closest|near me|find|show)/g, "").trim();
+        
+        // Replace with synonyms
+        Object.keys(synonyms).forEach(key => {
+            if (category.includes(key)) {
+                category = synonyms[key].category;
+            }
+        });
+        
+        handleNearestRequest(category);
         return;
     }
 
@@ -226,19 +316,30 @@ function processCommand(rawText) {
         return;
     }
 
-    // F. DIRECT CATEGORY REQUESTS (using new synonym helper)
+    // F. DIRECT CATEGORY REQUESTS (food, toilet, etc.)
     const foundCategory = getCategoryFromSynonym(text);
+    
     if (foundCategory) {
         const matches = flatLocations.filter(loc => 
             loc.fullName.includes(foundCategory)
         );
         
         if (matches.length > 0) {
-            if (currentUserPos) {
+            // **NEW: Check if user wants all or just nearest**
+            const wantsAll = text.match(/all|every|show|list/);
+            
+            if (wantsAll || matches.length <= 3) {
+                // Show all if requested or if only a few results
+                handleMultipleResults(matches, currentUserPos ? true : false, null);
+            } else if (currentUserPos) {
+                // Show nearest if GPS available
                 handleNearestRequest(foundCategory);
             } else {
-                handleMultipleResults(matches.slice(0, 3));
+                // No GPS, show top 3
+                handleMultipleResults(matches.slice(0, 3), false, 3);
             }
+            
+            updateContext(text, foundCategory);
             return;
         }
     }
@@ -259,6 +360,13 @@ function processCommand(rawText) {
         }
     });
 
+    // Detect complex queries and offer to simplify
+    if (isComplexQuery(text)) {
+        showComplexQueryHelp();
+        updateContext('complex_query', rawText);
+        return;
+    }
+
     console.log("🔍 Searching for:", searchText);
     
     const fuse = createFuse();
@@ -276,6 +384,7 @@ function processCommand(rawText) {
         // CASE 1: Single result - navigate immediately
         if (matches.length === 1) {
             navigateToLocation(matches[0]);
+            updateContext('navigate', matches[0].title);
         }
         // CASE 2: 2-3 results - show with distances
         else if (matches.length <= 3 && currentUserPos) {
@@ -293,20 +402,21 @@ function processCommand(rawText) {
 
     } else {
         const suggestions = getSuggestions(text);
-        botReply(`I couldn't find that. ${suggestions}`);
-        speak("I couldn't find that location.");
+        addHTMLMessage(`I couldn't find that. ${suggestions}<br><br>Would you like me to show nearby alternatives? Reply <b>yes</b> or <b>no</b>.`, 'bot');
+        updateContext('not_found', rawText, { pendingFollowUp: { type: 'show_alternatives', query: rawText } });
+        speak("I couldn't find that location. Would you like alternatives?");
     }
 }
 
-// 9. HANDLE MULTIPLE RESULTS (2-3 options with distances)
-function handleMultipleResults(locations, showDistance = true) {
+// 9. HANDLE MULTIPLE RESULTS (Enhanced to show all or limited)
+function handleMultipleResults(locations, showDistance = true, maxResults = null) {
     if (!locations || locations.length === 0) return;
     
     // Calculate distances if GPS available
     let locationsWithDistance = locations.map(loc => {
         if (showDistance && currentUserPos && loc.lat && loc.lng) {
             const dist = getDistance(currentUserPos.lat, currentUserPos.lng, loc.lat, loc.lng);
-            const walkTime = Math.ceil(dist / (1.4 * 60)); // Walking speed: 1.4 m/s
+            const walkTime = Math.ceil(dist / (1.4 * 60));
             return { 
                 ...loc, 
                 distance: dist,
@@ -322,27 +432,46 @@ function handleMultipleResults(locations, showDistance = true) {
         locationsWithDistance.sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
     }
 
+    // **NEW: Limit results if specified (default 3 for nearest, unlimited for "show all")**
+    const displayLimit = maxResults || (locations.length > 5 ? 5 : locations.length);
+    const displayLocations = locationsWithDistance.slice(0, displayLimit);
+
     // Store for number selection
-    pendingResults = locationsWithDistance;
+    pendingResults = displayLocations;
     awaitingNumberSelection = true;
 
     // **NEW: Show all locations on map with markers**
-    if (typeof map !== 'undefined' && locationsWithDistance.length > 0) {
-        showMultipleMarkersOnMap(locationsWithDistance);
+    if (typeof map !== 'undefined' && displayLocations.length > 0) {
+        showMultipleMarkersOnMap(displayLocations);
     }
 
     // Build HTML message
-    let msg = `<b>🎯 Found ${locations.length} options:</b><br><br>`;
+    let msg = `<b>🎯 Found ${locations.length} option${locations.length > 1 ? 's' : ''}:</b><br><br>`;
     
-    locationsWithDistance.forEach((loc, idx) => {
+    displayLocations.forEach((loc, idx) => {
         msg += `<b>${idx + 1}.</b> ${loc.title}`;
         if (loc.distance !== null) {
             msg += ` - <i>${loc.distanceText}</i> (${loc.walkTime} min walk) ⏱️`;
         }
+        
+        // Add landmark info
+        if (loc.landmark) {
+            msg += `<br>&nbsp;&nbsp;&nbsp;&nbsp;<small>📍 ${loc.landmark}</small>`;
+        }
+        
+        // Add floor info
+        if (loc.floors) {
+            msg += `<br>&nbsp;&nbsp;&nbsp;&nbsp;<small>🏢 Floors: ${loc.floors}</small>`;
+        }
+        
         msg += `<br>`;
     });
     
-    msg += `<br>👉 <b>Reply with a number (1-${Math.min(locations.length, 3)}) to select</b>`;
+    if (locations.length > displayLimit) {
+        msg += `<br><small>Showing top ${displayLimit} of ${locations.length} results</small><br>`;
+    }
+    
+    msg += `<br>👉 <b>Reply with a number (1-${displayLocations.length}) to select</b>`;
     
     addHTMLMessage(msg, 'bot');
     speak(`I found ${locations.length} options. Reply with a number to select one.`);
@@ -702,4 +831,43 @@ if (SpeechRecognition && micBtn) {
     };
 } else if (micBtn) {
     micBtn.style.display = 'none';
+}
+
+// 8.a Conversation helper functions (help, emergency, complex query)
+function showHelpMessage() {
+    const helpMsg = `<b>I can help you:</b><br>• Find locations: "Find food"<br>• Get nearest: "Nearest toilet"<br>• Show category: "Show canteens"<br>• Quick select: Reply with 1, 2, or 3<br><br>Need quick tips? Try: "Where's the library?", "Show hostels", or "Nearest water"`;
+    addHTMLMessage(helpMsg, 'bot');
+    speak('I can help you find canteens, restrooms, hostels, venues and more. Try saying "Find food" or "Nearest toilet".');
+}
+
+function showEmergencyHelp(confirmCall = false) {
+    const helplines = {
+        security: { name: 'Campus Security', phone: '+1234567890' },
+        medical: { name: 'Medical/Emergency', phone: '+1234567801' }
+    };
+
+    const html = `<b>🚨 Emergency Help</b><br>If this is an immediate danger, call your local emergency services first.<br><br>` +
+        `<b>Campus Security:</b> ${helplines.security.phone} <button onclick="window.open('tel:${helplines.security.phone.replace(/\D/g,'')}')">Call</button><br>` +
+        `<b>Medical:</b> ${helplines.medical.phone} <button onclick="window.open('tel:${helplines.medical.phone.replace(/\D/g,'')}')">Call</button><br><br>` +
+        `Would you like me to call Campus Security for you? Reply <b>yes</b> or <b>no</b>`;
+
+    addHTMLMessage(html, 'bot');
+    speak('If this is an emergency, you can call campus security or medical services. Would you like me to call security?');
+
+    // set follow-up so yes/no will trigger call behavior
+    updateContext('emergency_offer_call', null, { pendingFollowUp: { type: 'call_security' } });
+}
+
+function isComplexQuery(text) {
+    // Naive heuristics: long queries with multiple clauses or requests
+    if (!text) return false;
+    if (text.length > 80) return true;
+    if ((text.match(/and|or|but|also|besides/g) || []).length >= 2) return true;
+    return false;
+}
+
+function showComplexQueryHelp() {
+    const html = `<b>🤖 Complex Query Detected</b><br>I can help break this down. Try asking one thing at a time, for example:<br>• "Find nearest canteen"<br>• "Show hostels on east side"<br>• "How far is the library from me?"`;
+    addHTMLMessage(html, 'bot');
+    speak('That sounds like a complex request. Try asking one thing at a time, or I can help break it down.');
 }

@@ -428,9 +428,9 @@ body {
 }
 
 .close-btn {
-    position: absolute;
-    top: 20px;
-    right: 30px;
+    /* position: absolute; */
+    /* top: 20px; */
+    /* right: 30px; */
     color: white;
     font-size: 40px;
     font-weight: 300;
