@@ -942,7 +942,15 @@ function locateUser() {
 }
 
 // **NEW: Location loading indicator**
+
+
 function showLocationLoading() {
+    // ✅ ADD THIS CHECK FIRST
+    const existing = document.getElementById('location-loading');
+    if (existing) {
+        return; // Element already exists, don't create duplicate
+    }
+    
     const indicator = document.createElement('div');
     indicator.id = 'location-loading';
     indicator.innerHTML = `
@@ -2298,6 +2306,7 @@ class UIContainerButtonSync {
         }
     }
 }
+
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {

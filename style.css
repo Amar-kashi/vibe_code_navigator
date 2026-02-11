@@ -1746,3 +1746,229 @@ body {
 .chat-nav-btn:active {
     transform: translateY(0);
 }
+
+
+/* === IN-APP NAVIGATION PANEL === */
+.navigation-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: white;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    animation: slideDownNav 0.4s ease;
+    /* Isolation properties to prevent child layout issues from modal overlays */
+    isolation: isolate;
+    contain: layout style;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+@keyframes slideDownNav {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.nav-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background: rgba(0,0,0,0.3);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+    position: relative;
+}
+
+.nav-close-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    margin-right: 12px;
+    transition: all 0.2s;
+}
+
+.nav-close-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.1);
+}
+
+.nav-destination-name {
+    font-size: 16px;
+    font-weight: 700;
+    flex: 1;
+}
+
+.nav-instruction {
+    display: flex;
+    align-items: center;
+    padding: 24px 20px;
+    gap: 16px;
+    background: rgba(76, 175, 80, 0.1);
+    flex-shrink: 0;
+    position: relative;
+}
+
+.nav-direction-icon {
+    font-size: 48px;
+    filter: drop-shadow(0 2px 8px rgba(76, 175, 80, 0.5));
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.nav-text {
+    flex: 1;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.nav-stats {
+    display: flex;
+    padding: 16px 20px;
+    gap: 16px;
+    background: rgba(0,0,0,0.2);
+    flex-shrink: 0;
+    position: relative;
+}
+
+.nav-stat {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    position: relative;
+    min-width: 0; /* Prevent flex item overflow */
+}
+
+.nav-stat-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 4px;
+}
+
+.nav-stat-value {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: #4CAF50;
+}
+
+.nav-progress {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    overflow: hidden;
+}
+
+.nav-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.nav-recenter-btn {
+    margin: 12px 20px;
+    width: calc(100% - 40px);
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-recenter-btn:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .nav-instruction {
+        padding: 20px 16px;
+    }
+    
+    .nav-direction-icon {
+        font-size: 40px;
+    }
+    
+    .nav-text {
+        font-size: 16px;
+    }
+}
+
+/* User marker during navigation */
+.user-marker-nav {
+    cursor: pointer;
+    filter: drop-shadow(0 0 8px rgba(33, 150, 243, 0.8));
+}
+
+.destination-marker {
+    cursor: pointer;
+    filter: drop-shadow(0 2px 8px rgba(76, 175, 80, 0.6));
+}
+
+/* === NAVIGATION PANEL LAYOUT PROTECTION === */
+/* Prevent navigation panel children from being affected by error modals and overlays */
+.navigation-panel * {
+    box-sizing: border-box;
+}
+
+/* Ensure navigation panel maintains its structure when high z-index modals appear */
+.navigation-panel {
+    will-change: auto; /* Prevent unnecessary compositing */
+}
+
+/* Force proper stacking context for navigation elements */
+.nav-header,
+.nav-instruction,
+.nav-stats,
+.nav-progress,
+.nav-recenter-btn {
+    z-index: auto;
+    position: relative;
+}
+
+/* Prevent flex children from collapsing when modals appear */
+.nav-stat-label,
+.nav-stat-value {
+    display: block;
+    position: relative;
+}
+
+/* Additional safeguards for text elements */
+.nav-destination-name,
+.nav-text,
+.nav-direction-icon {
+    position: relative;
+    z-index: auto;
+}
+
+/* Ensure buttons remain clickable and properly positioned */
+.nav-close-btn,
+.nav-recenter-btn {
+    position: relative;
+    z-index: auto;
+}
