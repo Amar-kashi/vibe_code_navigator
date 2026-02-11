@@ -51,9 +51,10 @@ const synonyms = {
         category: "Library", 
         tags: ["books", "study", "reading", "read"] 
     },
+ 
     "venue": { 
         category: "Venues", 
-        tags: ["hall", "auditorium", "lab", "class", "classroom", "tutorial","vibe code","vibe","hackathon","24"] 
+        tags: ["hall", "auditorium", "lab", "class", "classroom", "tutorial", "vibe code", "vibe", "vibecode", "hackathon", "24", "hack"] 
     }
 };
 
@@ -193,10 +194,22 @@ function processCommand(rawText) {
         const pf = conversationContext.pendingFollowUp;
         if (pf && pf.type === 'show_alternatives') {
             if (ansYes) {
-                // show nearby alternatives
-                if (typeof locateUser === 'function' && !currentUserPos) {
-                    botReply('Okay, I will try to get your location to show nearby options.');
-                    if(typeof locateUser === 'function') locateUser();
+                if (!currentUserPos) {
+                    botReply('🌍 Getting your location...');
+                    // Try to get location from map or browser
+                    if (typeof map !== 'undefined' && map.getCenter) {
+                        const center = map.getCenter();
+                        currentUserPos = { lat: center.lat, lng: center.lng };
+                        botReply('📍 Using map center. What are you looking for?');
+                    } else if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => {
+                                currentUserPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                                botReply('✅ Location found! What are you looking for?');
+                            },
+                            () => botReply('❌ Could not get location. Try searching by name.')
+                        );
+                    }
                 } else if (pf.query) {
                     processCommand(pf.query + ' near me');
                 } else {
@@ -602,37 +615,71 @@ function askDistancePreference(locations) {
 }
 
 // 11. NAVIGATE TO LOCATION (With Image + Voice)
-function navigateToLocation(location) {
-    if (!location) return;
-    
-    // **NEW: Clear multiple markers when selecting one**
-    multipleMarkers.forEach(marker => marker.remove());
-    multipleMarkers = [];
-    
-    const distInfo = location.distance 
-        ? ` - ${location.distanceText} away (${location.walkTime} min walk)` 
-        : '';
-    
-    const msg = `<b>✅ Navigating to:</b><br>${location.title}${distInfo}`;
-    addHTMLMessage(msg, 'bot');
-    speak(`Navigating to ${location.title}`);
-    
-    // Show Image
-    if (location.image) {
-        addChatImage(location.image);
+function navigateToLocation(loc) {
+    if (!loc || !loc.lat || !loc.lng) {
+        botReply("❌ Invalid location data");
+        return;
     }
 
-    // Trigger Navigation from script.js
+    // Hide the old navigation container if it exists
+    const oldNavContainer = document.getElementById('chat-nav-container');
+    if (oldNavContainer) {
+        oldNavContainer.style.display = 'none';
+    }
+
+    // Create chatbot message with navigation card
+    const distText = loc.distanceText || '--';
+    const walkTime = loc.walkTime || '--';
+    const landmark = loc.landmark || 'Location selected';
+    
+    const navHTML = `
+        <div class="chat-nav-card">
+            <div class="nav-card-header">
+                <span class="nav-icon">📍</span>
+                <div class="nav-destination">
+                    <div class="nav-title">${loc.title || loc.fullName}</div>
+                    <div class="nav-landmark">${landmark}</div>
+                </div>
+            </div>
+            <div class="nav-stats">
+                <div class="nav-stat">
+                    <span class="stat-label">Distance</span>
+                    <span class="stat-value">${distText}</span>
+                </div>
+                <div class="nav-stat">
+                    <span class="stat-label">Walk Time</span>
+                    <span class="stat-value">${walkTime} min</span>
+                </div>
+            </div>
+            <button class="chat-nav-btn" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}', '_blank')">
+                🧭 Start Navigation
+            </button>
+        </div>
+    `;
+    
+    addHTMLMessage(navHTML, 'bot');
+    
+    // Fly to location on map
+    if (typeof map !== 'undefined' && map) {
+        map.flyTo({
+            center: [loc.lng, loc.lat],
+            zoom: loc.zoom || 18,
+            essential: true
+        });
+        
+        // Add marker
+        if (typeof addMarker === 'function') {
+            addMarker(loc.lat, loc.lng, loc.title || loc.fullName);
+        }
+    }
+    
+    // Also update the main UI panel
     if (typeof selectLocation === 'function') {
-        selectLocation(location);
+        selectLocation(loc);
     }
     
-    // Mobile UI Cleanup
-    if(window.innerWidth < 768) {
-        setTimeout(() => chatPanel.classList.remove('active'), 2000);
-    }
+    speak(`Navigating to ${loc.title || loc.fullName}`);
 }
-
 // 12. HANDLE NEAREST REQUEST (Enhanced)
 function handleNearestRequest(category) {
     if (typeof currentUserPos === 'undefined' || !currentUserPos) {
