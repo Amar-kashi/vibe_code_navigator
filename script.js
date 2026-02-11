@@ -1170,8 +1170,37 @@ function handleLocationError(error) {
 }
 
 // Updated showLocationError to accept separate message and buttons
+// Updated showLocationError to accept separate message and buttons
+// Track modal state to prevent duplicates
+let isModalOpen = false;
+let modalTimeout = null;
+
+// Updated showLocationError to accept separate message and buttons
 function showLocationError(message, actionButtons = '') {
+    // Prevent duplicate calls within 500ms
+    if (isModalOpen) {
+        console.warn('Modal already open, ignoring duplicate call');
+        return;
+    }
+    
+    isModalOpen = true;
+    
+    // Reset flag after delay
+    if (modalTimeout) {
+        clearTimeout(modalTimeout);
+    }
+    modalTimeout = setTimeout(() => {
+        isModalOpen = false;
+    }, 500);
+    
+    // CRITICAL FIX: Remove any existing error modals first
+    const existingModal = document.querySelector('.error-modal-wrapper');
+    if (existingModal) {
+        existingModal.remove(); // Immediate removal
+    }
+    
     const errorDiv = document.createElement('div');
+    // ... rest of the function
     errorDiv.className = 'error-modal-wrapper';
     errorDiv.innerHTML = `
         <div class="error-backdrop" onclick="closeErrorModal()"></div>
@@ -1198,6 +1227,8 @@ function showLocationError(message, actionButtons = '') {
                 padding: 20px;
                 animation: fadeIn 0.3s ease;
             }
+            
+            /* ... rest of the styles remain the same ... */
             
             .error-backdrop {
                 position: absolute;
@@ -1460,44 +1491,63 @@ function showLocationError(message, actionButtons = '') {
 
 // Helper functions
 function closeErrorModal() {
-    const modal = document.querySelector('.error-modal-wrapper');
-    if (modal) {
-        modal.style.opacity = '0';
-        setTimeout(() => modal.remove(), 300);
+    // Reset modal state
+    isModalOpen = false;
+    if (modalTimeout) {
+        clearTimeout(modalTimeout);
+        modalTimeout = null;
     }
+    
+    // Remove ALL error modals (in case of duplicates)
+    const modals = document.querySelectorAll('.error-modal-wrapper');
+    modals.forEach(modal => {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            if (modal.parentElement) {
+                modal.remove();
+            }
+        }, 300);
+    });
 }
 
 function showLocationHelp() {
+    // Use setTimeout to ensure old modal is fully removed
     closeErrorModal();
-    const helpMsg = `
-        <div class="error-icon">💡</div>
-        <b class="error-title">How to Enable Location</b>
-        <div class="error-steps">
-            <p><b>On Mobile:</b></p>
-            <ol>
-                <li>Open your phone's Settings</li>
-                <li>Find "Location" or "Privacy"</li>
-                <li>Turn ON location services</li>
-                <li>Return to this page and refresh</li>
-            </ol>
-            <p><b>On Desktop:</b></p>
-            <ol>
-                <li>Click the 🔒 icon in address bar</li>
-                <li>Find "Location" permission</li>
-                <li>Select "Allow"</li>
-                <li>Refresh the page</li>
-            </ol>
-        </div>
-        <p class="error-alternative">
-            Need more help? Call: <a href="tel:+919882549996" style="color: #4CAF50; font-weight: 600;">+91 9882549996</a>
-        </p>
-    `;
-    const buttons = `
-        <button onclick="window.location.reload()" class="error-btn primary">
-            <span class="btn-icon">🔄</span> Refresh Page
-        </button>
-    `;
-    showLocationError(helpMsg, buttons);
+    
+    setTimeout(() => {
+        const helpMsg = `
+            <div class="error-icon">💡</div>
+            <b class="error-title">How to Enable Location</b>
+            <div class="error-steps">
+                <p><b>On Mobile:</b></p>
+                <ol>
+                    <li>Open your phone's Settings</li>
+                    <li>Find "Location" or "Privacy"</li>
+                    <li>Turn ON location services</li>
+                    <li>Return to this page and refresh</li>
+                </ol>
+                <p><b>On Desktop:</b></p>
+                <ol>
+                    <li>Click the 🔒 icon in address bar</li>
+                    <li>Find "Location" permission</li>
+                    <li>Select "Allow"</li>
+                    <li>Refresh the page</li>
+                </ol>
+            </div>
+            <p class="error-alternative">
+                Need more help? Call: <a href="tel:+919882549996" style="color: #4CAF50; font-weight: 600;">+91 9882549996</a>
+            </p>
+        `;
+        const buttons = `
+            <button onclick="window.location.reload()" class="error-btn primary">
+                <span class="btn-icon">🔄</span> Refresh Page
+            </button>
+            <button onclick="closeErrorModal()" class="error-btn secondary">
+                <span class="btn-icon">✕</span> Close
+            </button>
+        `;
+        showLocationError(helpMsg, buttons);
+    }, 350); // Wait for close animation to complete
 }
 
 function openSettings() {
@@ -1506,44 +1556,56 @@ function openSettings() {
 
 function setManualLocation() {
     closeErrorModal();
-    const lat = prompt('Enter Latitude (e.g., 11.358643):');
-    const lng = prompt('Enter Longitude (e.g., 77.828868):');
     
-    if (lat && lng) {
-        const newLat = parseFloat(lat);
-        const newLng = parseFloat(lng);
+    // Wait for modal to close before showing prompts
+    setTimeout(() => {
+        const lat = prompt('Enter Latitude (e.g., 11.358643):');
+        const lng = prompt('Enter Longitude (e.g., 77.828868):');
         
-        if (!isNaN(newLat) && !isNaN(newLng)) {
-            currentUserPos = { lat: newLat, lng: newLng };
+        if (lat && lng) {
+            const newLat = parseFloat(lat);
+            const newLng = parseFloat(lng);
             
-            if (!userMarker) {
-                userMarker = new maplibregl.Marker({ 
-                    color: '#4CAF50', 
-                    scale: 1.2,
-                    draggable: true 
-                }) 
-                    .setLngLat([newLng, newLat])
-                    .setPopup(new maplibregl.Popup().setHTML("<b>📍 Manual Location</b>"))
-                    .addTo(map);
+            if (!isNaN(newLat) && !isNaN(newLng)) {
+                currentUserPos = { lat: newLat, lng: newLng };
+                
+                if (!userMarker) {
+                    userMarker = new maplibregl.Marker({ 
+                        color: '#4CAF50', 
+                        scale: 1.2,
+                        draggable: true 
+                    }) 
+                        .setLngLat([newLng, newLat])
+                        .setPopup(new maplibregl.Popup().setHTML("<b>📍 Manual Location</b>"))
+                        .addTo(map);
+                } else {
+                    userMarker.setLngLat([newLng, newLat]);
+                }
+                
+                map.flyTo({ center: [newLng, newLat], zoom: 17 });
+                
+                const successMsg = `
+                    <div class="error-icon">✅</div>
+                    <b class="error-title">Location Set Successfully!</b>
+                    <p class="error-description">Your location has been set manually. You can now use navigation features.</p>
+                `;
+                
+                setTimeout(() => {
+                    showLocationError(successMsg, `
+                        <button onclick="closeErrorModal()" class="error-btn primary">
+                            <span class="btn-icon">✓</span> Got it
+                        </button>
+                    `);
+                    
+                    // Auto-close success message
+                    setTimeout(closeErrorModal, 2000);
+                }, 100);
             } else {
-                userMarker.setLngLat([newLng, newLat]);
+                alert('Invalid coordinates. Please enter valid numbers.');
             }
-            
-            map.flyTo({ center: [newLng, newLat], zoom: 17 });
-            
-            const successMsg = `
-                <div class="error-icon">✅</div>
-                <b class="error-title">Location Set Successfully!</b>
-                <p class="error-description">Your location has been set manually. You can now use navigation features.</p>
-            `;
-            showLocationError(successMsg, '');
-            setTimeout(closeErrorModal, 2000);
-        } else {
-            alert('Invalid coordinates. Please enter valid numbers.');
         }
-    }
+    }, 350);
 }
-
 // --- 5. RENDER MENU (Recursive - Unchanged) ---
 function renderMenu(data, container) {
     data.forEach(item => {

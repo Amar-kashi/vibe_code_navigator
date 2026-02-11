@@ -1651,3 +1651,98 @@ body {
 .chat-start-nav-btn i {
     font-size: 18px;
 }
+
+
+/* === CHAT NAVIGATION CARD === */
+.chat-nav-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 8px 0;
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.nav-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.nav-icon {
+    font-size: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.nav-destination {
+    flex: 1;
+}
+
+.nav-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: white;
+}
+
+.nav-landmark {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 400;
+}
+
+.nav-stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 12px;
+    border-radius: 12px;
+    -webkit-backdrop-filter: blur(10px);backdrop-filter: blur(10px);
+}
+
+.nav-stat {
+    flex: 1;
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.stat-value {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+}
+
+.chat-nav-btn {
+    width: 100%;
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.chat-nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.chat-nav-btn:active {
+    transform: translateY(0);
+}
