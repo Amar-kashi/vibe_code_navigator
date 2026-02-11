@@ -29,35 +29,293 @@ function flattenData(items, parentName = "") {
 const synonyms = {
     "food": { 
         category: "Canteens", 
-        tags: ["hungry", "eat", "snack", "lunch", "dinner", "breakfast", "cafe", "cafeteria","food"] 
+        tags: ["hungry", "eat", "snack", "lunch", "dinner", "breakfast", "cafe", "cafeteria", "food", "mess", "dining"] 
     },
     "toilet": { 
         category: "Restrooms", 
-        tags: ["poo", "washroom", "bathroom", "wc", "restroom"] 
+        tags: ["poo", "washroom", "bathroom", "wc", "restroom", "loo", "lavatory"] 
     },
     "dorm": { 
         category: "Hostels", 
-        tags: ["sleep", "bed", "room", "accommodation", "stay", "hostel","rest","relax"] 
+        tags: ["sleep", "bed", "room", "accommodation", "stay", "hostel", "rest", "relax", "residence"] 
     },
     "water": { 
         category: "Water Points", 
-        tags: ["thirsty", "drink", "hydrate", "fountain"] 
+        tags: ["thirsty", "drink", "hydrate", "fountain", "aqua", "h2o"] 
     },
     "gym": { 
         category: "Gym", 
-        tags: ["exercise", "fitness", "workout", "training"] 
+        tags: ["exercise", "fitness", "workout", "training", "sports", "physical"] 
     },
     "library": { 
         category: "Library", 
-        tags: ["books", "study", "reading", "read"] 
+        tags: ["books", "study", "reading", "read", "book"] 
     },
- 
     "venue": { 
         category: "Venues", 
-        tags: ["hall", "auditorium", "lab", "class", "classroom", "tutorial", "vibe code", "vibe", "vibecode", "hackathon", "24", "hack"] 
+        tags: ["hall", "auditorium", "lab", "class", "classroom", "tutorial", "seminar", "conference", "room"] 
+    },
+    
+    
+    // HACKATHON EVENTS
+    "hackathon": {
+        category: "Hackathons",
+        tags: ["hack", "coding competition", "neurahack", "vibe code", "vibecode", "neuro code", "neurocode", 
+               "pcbathon", "cloudathon", "bionexathon", "designathon", "sdgathon", "startup pitch", 
+               "matlab simulation", "competition", "coding event", "hack event"]
+    },
+    "neurahack": {
+        category: "Hackathons",
+        tags: ["neurahack", "neura hack", "neural hack", "cyberdome", "cse lab", "it park","neura"]
+    },
+    "vibecode": {
+        category: "Hackathons",
+        tags: ["vibe code", "vibecode", "vibe", "26", "vibe code 26", "cyberdome", "net lab"]
+    },
+    
+    // WORKSHOPS
+    "workshop": {
+        category: "Workshops",
+        tags: ["workshop", "training", "hands on", "practical", "learning session", "skill training",
+               "flight mode", "chip2test", "iot", "ev", "agentic ai", "ai arcade", "blockchain",
+               "food innovations", "sequencing", "bim", "medi tech", "matlab", "github", 
+               "mobile app", "cyber strike", "lora", "ipr", "vehicle development"]
+    },
+    "ai workshop": {
+        category: "Workshops",
+        tags: ["agentic ai", "ai arcade", "ai integrated", "artificial intelligence", "machine learning"]
+    },
+    "blockchain": {
+        category: "Workshops",
+        tags: ["blockchain", "crypto", "cryptocurrency", "web3", "distributed ledger"]
+    },
+    
+    // TECHNICAL EVENTS
+    "technical": {
+        category: "Technical Events",
+        tags: ["tech event", "technical", "cody challenge", "system sense", "ai mystery", 
+               "bioblitz", "reel-o-science", "3d arena", "zero component", "drapex", "neura code",
+               "coding", "programming", "tech competition"]
+    },
+    
+    // SPORTS EVENTS
+    "sports": {
+        category: "Sports Events",
+        tags: ["sport", "game", "play", "cricket", "turf", "ground", "match", "tournament", "athletic"]
+    },
+    "cricket": {
+        category: "Sports Events",
+        tags: ["cricket", "turf cricket", "bat", "ball", "wicket", "pitch"]
+    },
+    
+    // TECH SHOWS
+    "show": {
+        category: "Tech Shows",
+        tags: ["show", "exhibition", "expo", "display", "demonstration", "demo",
+               "drone show", "auto show", "texexpo", "food expo", "tech show"]
+    },
+    "drone": {
+        category: "Tech Shows",
+        tags: ["drone", "uav", "quadcopter", "aerial", "flying", "breeze land"]
+    },
+    "expo": {
+        category: "Tech Shows",
+        tags: ["expo", "exhibition", "texexpo", "food expo", "showcase", "display"]
+    },
+    
+    // CULTURAL EVENTS
+    "cultural": {
+        category: "Cultural Events",
+        tags: ["cultural", "culture", "art", "dance", "music", "entertainment", "performance",
+               "infinite step", "beat mode", "cine fest", "musical mavericks", "spotlight",
+               "visveswaraya hall", "cyberdome"]
+    },
+    "dance": {
+        category: "Cultural Events",
+        tags: ["dance", "dancing", "infinite step", "beat mode", "performance", "choreography"]
+    },
+    "music": {
+        category: "Cultural Events",
+        tags: ["music", "musical", "beat", "song", "musical mavericks", "band", "concert"]
+    },
+    "film": {
+        category: "Cultural Events",
+        tags: ["film", "movie", "cinema", "cine fest", "screening", "cinematic"]
+    },
+    
+    // NANO TECH EVENTS
+    "nanotech": {
+        category: "Nano Tech Events",
+        tags: ["nano tech", "nanotech", "nano", "mini event", "quick event", "short event",
+               "meme contest", "ipl auction", "jam", "just a minute", "civil circuit",
+               "emoji pictionary", "treasure hunt", "battle arena", "kahoot", "quiz",
+               "twisted tiles", "logo quiz", "unit wars", "unmasking brands", "line x",
+               "face painting", "tech without tech", "mind spark", "freezeframe", "t2t",
+               "blindbites"]
+    },
+    "quiz": {
+        category: "Nano Tech Events",
+        tags: ["quiz", "kahoot", "logo quiz", "trivia", "questions", "competition"]
+    },
+    "game": {
+        category: "Nano Tech Events",
+        tags: ["game", "gaming", "battle arena", "treasure hunt", "emoji pictionary", "play"]
+    },
+    
+    // PRESENTATIONS
+    "presentation": {
+        category: "Presentations",
+        tags: ["presentation", "present", "project presentation", "poster presentation", 
+               "paper presentation", "display", "showcase", "demo", "demonstration"]
+    },
+    "project": {
+        category: "Presentations",
+        tags: ["project", "project presentation", "final year", "mini project", "major project"]
+    },
+    "poster": {
+        category: "Presentations",
+        tags: ["poster", "poster presentation", "display board", "exhibit"]
+    },
+    "paper": {
+        category: "Presentations",
+        tags: ["paper", "paper presentation", "research paper", "technical paper", "ieee"]
+    },
+    
+    // CONFERENCES & TALKS
+    "conference": {
+        category: "Conferences & Talks",
+        tags: ["conference", "seminar", "symposium", "talk", "speech", "lecture",
+               "leaders talk", "tech talk", "guest lecture", "keynote"]
+    },
+    "talk": {
+        category: "Conferences & Talks",
+        tags: ["talk", "speech", "lecture", "leaders talk", "tech talk", "guest speaker"]
+    },
+    
+    // DEPARTMENTS
+    "cse": {
+        category: "CSE",
+        tags: ["cse", "computer science", "cs", "computer science engineering", "cse lab", "it park"]
+    },
+    "it": {
+        category: "IT",
+        tags: ["it", "information technology", "it park", "it lab", "net lab"]
+    },
+    "ece": {
+        category: "ECE",
+        tags: ["ece", "electronics", "communication", "electronics and communication", "ec"]
+    },
+    "eee": {
+        category: "EEE",
+        tags: ["eee", "electrical", "electrical and electronics", "ee", "power", "m block"]
+    },
+    "mct": {
+        category: "MCT",
+        tags: ["mct", "mechatronics", "j block", "robotics", "automation"]
+    },
+    "mech": {
+        category: "Mechanical",
+        tags: ["mech", "mechanical", "mechanical engineering", "design", "cad", "cam"]
+    },
+    "civil": {
+        category: "Civil",
+        tags: ["civil", "civil engineering", "construction", "structure", "building"]
+    },
+    "biotech": {
+        category: "Biotechnology",
+        tags: ["biotech", "biotechnology", "bt", "bio", "h block", "life science"]
+    },
+    "aiml": {
+        category: "AIML",
+        tags: ["aiml", "ai ml", "ai and ml", "artificial intelligence and machine learning", "ai"]
+    },
+    "aids": {
+        category: "AI & DS",
+        tags: ["ai ds", "ai and ds", "aids", "artificial intelligence and data science", "data science"]
+    },
+    "csbs": {
+        category: "CSBS",
+        tags: ["csbs", "cs bs", "computer science and business systems", "business systems"]
+    },
+    "vlsi": {
+        category: "VLSI",
+        tags: ["vlsi", "very large scale integration", "chip design", "ic design", "vlsi lab"]
+    },
+    "textile": {
+        category: "Textile",
+        tags: ["textile", "txt", "fashion", "garment", "fabric", "g block", "lm block"]
+    },
+    "foodtech": {
+        category: "Food Technology",
+        tags: ["food tech", "ft", "food technology", "food science", "baking", "nutrition"]
+    },
+    "mba": {
+        category: "MBA",
+        tags: ["mba", "management", "business", "f block", "amartyasen", "fintech"]
+    },
+    "mca": {
+        category: "MCA",
+        tags: ["mca", "master of computer applications", "post graduate"]
+    },
+    
+    // SPECIFIC LABS & VENUES
+    "cyberdome": {
+        category: "Venues",
+        tags: ["cyberdome", "cyber dome", "3rd floor it park", "it park"]
+    },
+    "visveswaraya": {
+        category: "Venues",
+        tags: ["visveswaraya", "vishveshwarya", "vish hall", "visvesvaraya hall", "m block"]
+    },
+    "amartyasen": {
+        category: "Venues",
+        tags: ["amartyasen", "amartya sen", "amartya", "f block", "mba hall"]
+    },
+    "ksr hall": {
+        category: "Venues",
+        tags: ["ksr hall", "ksr", "main hall", "entrance hall", "auditorium"]
+    },
+    "incubation": {
+        category: "Venues",
+        tags: ["incubation", "ptc", "innovation", "startup", "entrepreneur", "innovation park"]
+    },
+    "breeze land": {
+        category: "Venues",
+        tags: ["breeze land", "breezeland", "breeze", "open area", "ground"]
+    },
+    
+    // PARKING
+    "parking": {
+        category: "Parking",
+        tags: ["parking", "vehicle", "bike", "car", "two wheeler", "four wheeler", "park"]
+    },
+    
+    // ATM
+    "atm": {
+        category: "ATM",
+        tags: ["atm", "cash", "money", "bank", "withdraw", "deposit"]
+    },
+    
+    // SHOP
+    "shop": {
+        category: "Shops",
+        tags: ["shop", "store", "xerox", "photocopy", "stationery", "stationary", "supplies"]
+    },
+    
+    // ADMINISTRATIVE
+    "office": {
+        category: "Administrative",
+        tags: ["office", "admin", "administration", "hod", "principal", "dean", "management"]
     }
 };
 
+// DATE QUERY KEYWORDS
+const dateKeywords = ["when", "what day", "what date", "schedule", "timing", "date", "time"];
+
+// Helper to detect date queries
+function isDateQuery(text) {
+    return dateKeywords.some(keyword => text.toLowerCase().includes(keyword));
+}
 // Helper function to find category from any synonym
 function getCategoryFromSynonym(text) {
     text = text.toLowerCase();
@@ -123,8 +381,7 @@ function initializeAI() {
     
     // Show welcome message
     setTimeout(() => {
-        const welcomeMsg = `<b>👋 Hi — I'm Vibe Guide!</b><br>I can help you find places on campus:<br>• Canteens 🍽️ • Restrooms 🚻 • Hostels 🏠 • Venues 📚 • Water Points 💧<br><br>Try: <i>"Find food"</i>, <i>"Nearest toilet"</i>, or ask <i>"Where's the library?"</i><br><br>If this is an urgent emergency, type <b>"emergency"</b> and I'll show local helplines.`;
-        addHTMLMessage(welcomeMsg, 'bot');
+        const welcomeMsg = `<b>👋 Hi — I'm Vibe Guide!</b><br>I can help you navigate campus and find:<br>• Canteens 🍽️ • Restrooms 🚻 • Hostels 🏠<br>• Venues 📚 • Departments 🏢 • Events 🎉<br>• Water Points 💧 • Parking 🚗 • ATMs 💳<br><br>Try: <i>"Show all events"</i>, <i>"When is Vibe Code?"</i>, <i>"Nearest toilet"</i>, or <i>"Find Drone Show"</i><br><br>For emergency help, type <b>"emergency"</b>.`;
     }, 500);
 }
 
@@ -169,18 +426,21 @@ function processCommand(rawText) {
 
     addMessage(rawText, 'user');
 
-    // A. NUMBER SELECTION MODE (Enhanced for 1-9)
-    if (awaitingNumberSelection && /^[1-9]$/.test(text)) {
-        const index = parseInt(text) - 1;
-        if (index >= 0 && index < pendingResults.length) {
-            const selected = pendingResults[index];
-            navigateToLocation(selected);
-            awaitingNumberSelection = false;
-            pendingResults = [];
-            return;
-        } else {
-            botReply(`Please select a number between 1 and ${pendingResults.length}`);
-            return;
+    // A. NUMBER SELECTION MODE (Enhanced for 1-99)
+    if (awaitingNumberSelection) {
+        const numMatch = text.match(/^(\d+)$/);
+        if (numMatch) {
+            const index = parseInt(numMatch[1]) - 1;
+            if (index >= 0 && index < pendingResults.length) {
+                const selected = pendingResults[index];
+                navigateToLocation(selected);
+                awaitingNumberSelection = false;
+                pendingResults = [];
+                return;
+            } else {
+                botReply(`⚠️ Please select a number between 1 and ${pendingResults.length}`);
+                return;
+            }
         }
     }
 
@@ -237,6 +497,47 @@ function processCommand(rawText) {
     }
     // A. Detect "all" or "every" requests
     const isShowAllRequest = text.match(/all|every|show (me )?all|give (me )?all|list all/);
+    // DATE/TIME QUERIES - Handle "when is" questions
+    if (text.match(/when (is|are)|what (day|date|time)|schedule|timing/)) {
+        // Extract event name from query
+        const eventQuery = text.replace(/(when|is|are|what|day|date|time|schedule|timing|the)/g, "").trim();
+        
+        // Search for events with dates
+        const fuse = createFuse();
+        if (fuse) {
+            const results = fuse.search(eventQuery);
+            
+            if (results.length > 0) {
+                const eventsWithDates = results
+                    .map(r => r.item)
+                    .filter(loc => loc.date);
+                
+                if (eventsWithDates.length > 0) {
+                    let dateMsg = `<b>📅 Event Schedule:</b><br><br>`;
+                    
+                    eventsWithDates.slice(0, 5).forEach((loc, idx) => {
+                        const title = loc.title || loc.fullName;
+                        const landmark = loc.landmark ? ` - ${loc.landmark}` : '';
+                        dateMsg += `<b>${idx + 1}.</b> ${title}<br>&nbsp;&nbsp;&nbsp;📅 ${loc.date}${landmark}<br>`;
+                    });
+                    
+                    if (eventsWithDates.length > 5) {
+                        dateMsg += `<br><small>Showing ${Math.min(5, eventsWithDates.length)} of ${eventsWithDates.length} events</small>`;
+                    }
+                    
+                    addHTMLMessage(dateMsg, 'bot');
+                    updateContext('date_query', eventQuery);
+                    return;
+                } else {
+                    botReply(`I found "${results[0].item.title}" but I don't have the date information for it yet.`);
+                    return;
+                }
+            }
+        }
+        
+        botReply("I couldn't find that event. Try asking about specific events like 'When is Vibe Code?' or 'What date is the Drone Show?'");
+        return;
+    }
     // B. Small Talk
     if (text.match(/^(hi|hello|hey|sup|yo)/)) {
         const reply = "Hello! 👋 Where would you like to go? Try <b>'Find food'</b>, <b>'Nearest toilet'</b>, or <b>'Show hostels'</b>.";
@@ -272,26 +573,51 @@ function processCommand(rawText) {
         return;
     }
 
-    // C. "Show all" / "Give all" requests
-    if (text.match(/show all|give all|list all|all the|show me all/)) {
-        let category = text.replace(/(show|give|list|all|the|me)/g, "").trim();
+    // C. "Show all" / "Give all" requests - ENHANCED
+    if (text.match(/show all|give all|list all|all the|show me all|all locations|every location/)) {
+        let category = text.replace(/(show|give|list|all|the|me|locations?|every)/g, "").trim();
+        
+        // If no category specified, show ALL locations
+        if (!category || category.length < 2) {
+            botReply(`📍 Found ${flatLocations.length} total locations on campus!`);
+            handleMultipleResults(flatLocations, currentUserPos ? true : false);
+            showMultipleMarkersOnMap(flatLocations.slice(0, 50)); // Limit markers to prevent performance issues
+            updateContext('show_all_locations', 'all');
+            return;
+        }
         
         // Map to category
         const foundCategory = getCategoryFromSynonym(category);
         
         if (foundCategory) {
             const matches = flatLocations.filter(loc => 
-                loc.fullName.includes(foundCategory)
+                loc.fullName.toLowerCase().includes(foundCategory.toLowerCase())
             );
             
             if (matches.length > 0) {
+                botReply(`📍 Found ${matches.length} ${foundCategory} locations!`);
                 // Show ALL results with distances
                 if (currentUserPos) {
                     handleMultipleResults(matches, true);
                 } else {
-                    handleMultipleResults(matches.slice(0, 5), false);
+                    handleMultipleResults(matches, false);
                 }
-                updateContext(text, foundCategory);
+                showMultipleMarkersOnMap(matches); // Show all on map
+                updateContext('show_all_category', foundCategory);
+                return;
+            }
+        } else {
+            // Try to find by partial match
+            const partialMatches = flatLocations.filter(loc =>
+                loc.fullName.toLowerCase().includes(category.toLowerCase()) ||
+                loc.title.toLowerCase().includes(category.toLowerCase())
+            );
+            
+            if (partialMatches.length > 0) {
+                botReply(`📍 Found ${partialMatches.length} locations matching "${category}"!`);
+                handleMultipleResults(partialMatches, currentUserPos ? true : false);
+                showMultipleMarkersOnMap(partialMatches);
+                updateContext('show_partial_match', category);
                 return;
             }
         }
@@ -329,34 +655,49 @@ function processCommand(rawText) {
         return;
     }
 
-    // F. DIRECT CATEGORY REQUESTS (food, toilet, etc.)
+    // F. DIRECT CATEGORY REQUESTS (food, toilet, departments, events, etc.)
     const foundCategory = getCategoryFromSynonym(text);
-    
+
     if (foundCategory) {
         const matches = flatLocations.filter(loc => 
-            loc.fullName.includes(foundCategory)
+            loc.fullName.toLowerCase().includes(foundCategory.toLowerCase())
         );
         
         if (matches.length > 0) {
-            // **NEW: Check if user wants all or just nearest**
+            // Check if user wants all or just nearest
             const wantsAll = text.match(/all|every|show|list/);
             
-            if (wantsAll || matches.length <= 3) {
-                // Show all if requested or if only a few results
-                handleMultipleResults(matches, currentUserPos ? true : false, null);
+            if (wantsAll) {
+                // Show ALL results
+                botReply(`📍 Found ${matches.length} ${foundCategory} locations!`);
+                handleMultipleResults(matches, currentUserPos ? true : false, null, true);
+                showMultipleMarkersOnMap(matches);
+            } else if (matches.length <= 5) {
+                // Show up to 5 if only a few results
+                handleMultipleResults(matches, currentUserPos ? true : false, null, true);
             } else if (currentUserPos) {
-                // Show nearest if GPS available
-                handleNearestRequest(foundCategory);
+                // Show nearest 5 if GPS available
+                const nearest = matches
+                    .map(loc => ({
+                        ...loc,
+                        distance: getDistance(currentUserPos.lat, currentUserPos.lng, loc.lat, loc.lng)
+                    }))
+                    .sort((a, b) => a.distance - b.distance)
+                    .slice(0, 5);
+                handleMultipleResults(nearest, true, null, true);
             } else {
-                // No GPS, show top 3
-                handleMultipleResults(matches.slice(0, 3), false, 3);
+                // No GPS, show top 5
+                botReply(`📍 Found ${matches.length} ${foundCategory} locations. Showing nearest 5:`);
+                handleMultipleResults(matches.slice(0, 5), false, 5, true);
             }
             
-            updateContext(text, foundCategory);
+            updateContext('category_request', foundCategory);
+            return;
+        } else {
+            botReply(`❌ No ${foundCategory} locations found. Try: Canteens, Restrooms, Hostels, Venues, Departments.`);
             return;
         }
     }
-
     // G. SMART SEARCH with Multi-Results
     let searchText = text;
     const categoryFromText = getCategoryFromSynonym(text);
@@ -399,18 +740,18 @@ function processCommand(rawText) {
             navigateToLocation(matches[0]);
             updateContext('navigate', matches[0].title);
         }
-        // CASE 2: 2-3 results - show with distances
-        else if (matches.length <= 3 && currentUserPos) {
+        // CASE 2: 2-5 results - show with distances
+        else if (matches.length <= 5 && currentUserPos) {
             handleMultipleResults(matches);
         }
-        // CASE 3: 4+ results - ask about distance preference
-        else if (matches.length >= 4 && currentUserPos) {
+        // CASE 3: 6+ results - ask about distance preference
+        else if (matches.length >= 6 && currentUserPos) {
             askDistancePreference(matches);
         }
         // CASE 4: Multiple results but no GPS
         else {
-            const firstThree = matches.slice(0, 3);
-            handleMultipleResults(firstThree, false);
+            const firstFive = matches.slice(0, 5);
+            handleMultipleResults(firstFive, false);
         }
 
     } else {
@@ -422,7 +763,7 @@ function processCommand(rawText) {
 }
 
 // 9. HANDLE MULTIPLE RESULTS (Enhanced to show all or limited)
-function handleMultipleResults(locations, showDistance = true, maxResults = null) {
+function handleMultipleResults(locations, showDistance = true, maxResults = null, showOnMap = true) {
     if (!locations || locations.length === 0) return;
     
     // Calculate distances if GPS available
@@ -437,59 +778,49 @@ function handleMultipleResults(locations, showDistance = true, maxResults = null
                 distanceText: dist < 1000 ? `${Math.round(dist)}m` : `${(dist/1000).toFixed(1)}km`
             };
         }
-        return { ...loc, distance: null };
+        return loc;
     });
-
+    
     // Sort by distance if available
-    if (showDistance) {
+    if (showDistance && currentUserPos) {
         locationsWithDistance.sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
     }
-
-    // **NEW: Limit results if specified (default 3 for nearest, unlimited for "show all")**
-    const displayLimit = maxResults || (locations.length > 5 ? 5 : locations.length);
+    
+    // Determine how many to display (default: 5, max: based on maxResults parameter)
+    const displayLimit = maxResults || Math.min(locationsWithDistance.length, 5);
     const displayLocations = locationsWithDistance.slice(0, displayLimit);
-
+    
     // Store for number selection
     pendingResults = displayLocations;
     awaitingNumberSelection = true;
-
-    // **NEW: Show all locations on map with markers**
-    if (typeof map !== 'undefined' && displayLocations.length > 0) {
-        showMultipleMarkersOnMap(displayLocations);
-    }
-
-    // Build HTML message
-    let msg = `<b>🎯 Found ${locations.length} option${locations.length > 1 ? 's' : ''}:</b><br><br>`;
+    
+    // Build message
+    let msg = `<b>📍 Found ${locations.length} location${locations.length > 1 ? 's' : ''}:</b><br><br>`;
     
     displayLocations.forEach((loc, idx) => {
-        msg += `<b>${idx + 1}.</b> ${loc.title}`;
-        if (loc.distance !== null) {
-            msg += ` - <i>${loc.distanceText}</i> (${loc.walkTime} min walk) ⏱️`;
-        }
-        
-        // Add landmark info
-        if (loc.landmark) {
-            msg += `<br>&nbsp;&nbsp;&nbsp;&nbsp;<small>📍 ${loc.landmark}</small>`;
-        }
-        
-        // Add floor info
-        if (loc.floors) {
-            msg += `<br>&nbsp;&nbsp;&nbsp;&nbsp;<small>🏢 Floors: ${loc.floors}</small>`;
-        }
-        
-        msg += `<br>`;
+        const num = idx + 1;
+        const title = loc.title || loc.fullName;
+        const distInfo = loc.distanceText ? ` - ${loc.distanceText} (${loc.walkTime} min)` : '';
+        const dateInfo = loc.date ? `<br>&nbsp;&nbsp;&nbsp;<small>📅 ${loc.date}</small>` : '';
+        const landmark = loc.landmark ? `<br>&nbsp;&nbsp;&nbsp;<small>${loc.landmark}</small>` : '';
+        msg += `<b>${num}.</b> ${title}${distInfo}${landmark}${dateInfo}<br>`;
     });
     
     if (locations.length > displayLimit) {
-        msg += `<br><small>Showing top ${displayLimit} of ${locations.length} results</small><br>`;
+        msg += `<br><small>Showing top ${displayLimit} of ${locations.length} results. Say "show all" to see more.</small><br>`;
     }
     
     msg += `<br>👉 <b>Reply with a number (1-${displayLocations.length}) to select</b>`;
     
     addHTMLMessage(msg, 'bot');
-    speak(`I found ${locations.length} options. Reply with a number to select one.`);
+    
+    // Show markers on map if requested
+    if (showOnMap) {
+        showMultipleMarkersOnMap(displayLocations);
+    }
+    
+    speak(`I found ${locations.length} option${locations.length > 1 ? 's' : ''}. Reply with a number to select one.`);
 }
-
 // 10. SHOW MULTIPLE MARKERS ON MAP
 let multipleMarkers = []; // Store markers to clean up later
 
@@ -621,6 +952,11 @@ function navigateToLocation(loc) {
         return;
     }
 
+    // **NEW: Close error dialog when navigating**
+    if (typeof closeErrorModal === 'function') {
+        closeErrorModal();
+    }
+
     // Hide the old navigation container if it exists
     const oldNavContainer = document.getElementById('chat-nav-container');
     if (oldNavContainer) {
@@ -631,7 +967,8 @@ function navigateToLocation(loc) {
     const distText = loc.distanceText || '--';
     const walkTime = loc.walkTime || '--';
     const landmark = loc.landmark || 'Location selected';
-    
+    const eventDate = loc.date ? `📅 ${loc.date}` : '';
+
     const navHTML = `
         <div class="chat-nav-card">
             <div class="nav-card-header">
@@ -639,6 +976,7 @@ function navigateToLocation(loc) {
                 <div class="nav-destination">
                     <div class="nav-title">${loc.title || loc.fullName}</div>
                     <div class="nav-landmark">${landmark}</div>
+                    ${eventDate ? `<div class="nav-date" style="color: #FF5722; font-size: 0.85em; margin-top: 4px;">${eventDate}</div>` : ''}
                 </div>
             </div>
             <div class="nav-stats">
@@ -889,13 +1227,15 @@ function showHelpMessage() {
 
 function showEmergencyHelp(confirmCall = false) {
     const helplines = {
-        security: { name: 'Campus Security', phone: '+1234567890' },
-        medical: { name: 'Medical/Emergency', phone: '+1234567801' }
+        tech:{name: "Amar kashi",phone: '+91 988254996'},
+        security: { name: 'Campus Security', phone: '+91 988254996' },
+        medical: { name: 'Medical/Emergency', phone: '+91 9489243775' }
     };
 
     const html = `<b>🚨 Emergency Help</b><br>If this is an immediate danger, call your local emergency services first.<br><br>` +
         `<b>Campus Security:</b> ${helplines.security.phone} <button onclick="window.open('tel:${helplines.security.phone.replace(/\D/g,'')}')">Call</button><br>` +
         `<b>Medical:</b> ${helplines.medical.phone} <button onclick="window.open('tel:${helplines.medical.phone.replace(/\D/g,'')}')">Call</button><br><br>` +
+        `<b>Tech Support:</b> ${helplines.tech.phone} <button onclick="window.open('tel:${helplines.tech.phone.replace(/\D/g,'')}')">Call</button><br><br>` +
         `Would you like me to call Campus Security for you? Reply <b>yes</b> or <b>no</b>`;
 
     addHTMLMessage(html, 'bot');

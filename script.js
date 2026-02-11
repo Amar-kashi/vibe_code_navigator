@@ -438,7 +438,219 @@ const menuData = [
         lat: 11.361757899976554, 
         lng: 77.82732633540377, 
         zoom: 19,
-        landmark: "Central Library Building"
+landmark: "Central Library Building"
+    },
+    {
+        id: 8,
+        title: "DAKSHAA Events",
+        children: [
+            {
+                title: "Hackathons",
+                children: [
+                    {
+                        title: "Neurahack 2.0",
+                        children: [
+                            { title: "Cyberdome", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "3rd Floor IT Park" },
+                            { title: "CSE Lab-1", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "Ground Floor IT Park" },
+                            { title: "CSE Lab-2", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "1st Floor IT Park" }
+                        ]
+                    },
+                    {
+                        title: "Vibe code - 26",
+                        children: [
+                            { title: "Cyberdome", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "3rd Floor IT Park" },
+                            { title: "NET Lab", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "2nd Floor IT Park" }
+                        ]
+                    },
+                    { title: "Neuro Code 2.0", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "IT Lab 1 - 1st Floor IT Park" },
+                    { title: "PCBathon", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "IDEA Lab - Ground Floor Main Building" },
+                    { title: "Cloudathon", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "Shine lab - 3rd Floor IT Park" },
+                    { title: "BioNexathon", lat: 11.361314, lng: 77.826529, zoom: 19, landmark: "Dr. M.S. Swaminathan Biotech Seminar Hall - Ground Floor" },
+                    { title: "Designathon", lat: 11.358500, lng: 77.829200, zoom: 19, landmark: "Design Centre - 1st Floor Mechanical Block" },
+                    { title: "MATLAB simulation", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "AB Lab 3 - 2nd Floor Academic Block" },
+                    { title: "SDGathon", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "NICE Lab - 1st Floor Academic Block" },
+                    { title: "Startup Pitch", lat: 11.360472, lng: 77.827697, zoom: 19, landmark: "PTC Seminar Hall - Ground Floor KSRCT Innovation Park" }
+                ]
+            },
+            {
+                title: "Workshops",
+                children: [
+                    { title: "Flight mode: ON", lat: 11.359837, lng: 77.828236, zoom: 19, landmark: "PLC Laboratory - Ground Floor MCT J Block" },
+                    { title: "Chip2Test", lat: 11.359837, lng: 77.828236, zoom: 19, landmark: "VLSI Lab - 1st Floor MCT J Block" },
+                    { title: "IoT in System Engineering", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "CDAC CoE in IoT - 1st Floor EEE M Block" },
+                    { title: "EV - Retrofitting", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "Power Electronics Lab - 1st Floor EEE M Block" },
+                    { title: "Agentic AI", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "AB Lab 2 - 2nd Floor Academic A Block" },
+                    { title: "AI Arcade", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "AB Lab 1 & 3 - 2nd Floor Academic A Block" },
+                    { title: "Blockchain Beyond Crypto", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "AB Lab 4 - 2nd Floor Academic A Block" },
+                    { title: "Sustainable Food Innovations", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Baking Lab - 3rd Floor Academic A Block" },
+                    { title: "Next Gen Sequencing", lat: 11.362026, lng: 77.826761, zoom: 19, landmark: "Bio Tech Seminar Hall - Ground Floor" },
+                    { title: "BIM", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "MA108 - 1st Floor MBA F Block" },
+                    { title: "AI Integrated Smart Medi Tech", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "Dr. Amartyasen Hall - 2nd Floor MBA F Block" },
+                    { title: "MATLAB Emerging Trends", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "UiPath Laboratory - Ground Floor IT Park" },
+                    { title: "Github Essentials", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "IT LAB 1 - 1st Floor IT Park" },
+                    { title: "Mobile App Development", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "NET Lab - 2nd Floor IT Park" },
+                    { title: "Cyber Strike", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "Bhumi Lab - 3rd Floor IT Park" },
+                    { title: "IoT with LoRa WAN", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Embedded Lab - 1st Floor Main Building" },
+                    { title: "Monetizing through IPR", lat: 11.360472, lng: 77.827697, zoom: 19, landmark: "PTC Conference Hall - Ground Floor PTC block" },
+                    { title: "Next Gen Vehicle Development", lat: 11.358500, lng: 77.829200, zoom: 19, landmark: "Design Centre - 1st Floor Mechanical Block" }
+                ]
+            },
+            {
+                title: "Technical Events",
+                children: [
+                    { title: "Cody Challenge", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "AB Lab 3 - 2nd Floor Academic A Block" },
+                    { title: "System Sense", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "AB LAB 4 - 2nd Floor Academic A Block" },
+                    { title: "AI Mystery Box Challenge", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "AB LAB 2 - 2nd Floor Academic Block" },
+                    { title: "Bioblitz Map", lat: 11.361757, lng: 77.827326, zoom: 19, landmark: "Protein Lab - 2nd Floor Biotechnology H Block" },
+                    { title: "Reel-O-Science", lat: 11.361757, lng: 77.827326, zoom: 19, landmark: "Smart classroom - 3rd Floor Biotechnology H Block" },
+                    { title: "3D Arena", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "MBA Computer Lab - 1st Floor MBA F Block" },
+                    { title: "Zero Component", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Communication Lab - 2nd Floor Main building" },
+                    { title: "DrapeX", lat: 11.359500, lng: 77.828700, zoom: 19, landmark: "Garment Construction Lab - 2nd Floor Textile G Block" },
+                    { title: "Neura Code 2.0", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "IT LAB 1 - 1st Floor IT Park" }
+                ]
+            }
+        ]
+    },
+    {
+        id: 9,
+        title: "Sports Events",
+        children: [
+            { 
+                title: "Turf Cricket", 
+                lat: 11.356120, 
+                lng: 77.826580, 
+                zoom: 19, 
+                landmark: "Ground - Hostel Backside", 
+                department: "CSBS",
+                date: "14.02.2026"
+            }
+        ]
+    },
+    {
+        id: 10,
+        title: "Tech Shows",
+        children: [
+            { title: "Drone Show", lat: 11.359800, lng: 77.826900, zoom: 19, landmark: "Breeze Land", department: "MCT", date: "12.02.2026 - 13.02.2026" },
+            { title: "Auto Show", lat: 11.357200, lng: 77.828500, zoom: 19, landmark: "Transport parking area", department: "Mech", date: "13.02.2026" },
+            { title: "TexExpo", lat: 11.359500, lng: 77.828700, zoom: 19, landmark: "Stall - LM Block", department: "TXT", date: "12.02.2026 - 14.02.2026" },
+            { title: "Food Expo", lat: 11.359500, lng: 77.828700, zoom: 19, landmark: "Stall - LM Block", department: "FT", date: "12.02.2026 - 14.02.2026" }
+        ]
+    },
+    {
+        id: 11,
+        title: "Cultural Events",
+        children: [
+            { title: "Infinite Step", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "Visveswaraya hall - Ground Floor EEE M Block", date: "14.02.2026" },
+            { title: "Beat Mode", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "Visveswaraya hall - Ground Floor EEE M Block", date: "14.02.2026" },
+            { title: "Cine Fest", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "Dr. Amartyasen Hall - 2nd Floor MBA F Block", date: "14.02.2026" },
+            { title: "Musical Mavericks", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "Cyberdome - 3rd Floor IT Park", date: "14.02.2026" },
+            { title: "Spotlight", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "Cyberdome - 3rd Floor IT Park", date: "14.02.2026" }
+        ]
+    },
+    {
+        id: 12,
+        title: "Nano Tech Events",
+        children: [
+            { title: "AI MEME CONTEST", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "I002 - Ground Floor IT PARK", department: "AI & DS" },
+            { title: "IPL AUCTION", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "I003 - Ground Floor IT PARK", department: "AI & DS" },
+            { title: "JUST-A-MINUTE (JAM)", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "I004 - Ground Floor IT PARK", department: "BT" },
+            { title: "CIVIL CIRCUIT", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "I006 - Ground Floor IT PARK", department: "CIVIL" },
+            { title: "EMOJI PICTIONARY", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "I007 - Ground Floor IT PARK", department: "CSBS" },
+            { title: "TREASURE HUNT", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "IT Park - Ground Floor", department: "IT" },
+            { title: "BATTLE ARENA", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "I107 - 1st Floor IT PARK", department: "CSE" },
+            { title: "Kahoot Quiz", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "I106 - 1st Floor IT PARK", department: "ECE" },
+            { title: "TWISTED TILES", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "I109 - 1st Floor IT PARK", department: "EEE" },
+            { title: "LOGO QUIZ", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "Smart Class Room - 1st Floor IT PARK", department: "EEE" },
+            { title: "UNIT WARS", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "I204 - 2nd Floor IT PARK", department: "EEE" },
+            { title: "UNMASKING BRANDS", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "I206 - 2nd Floor IT PARK", department: "FT" },
+            { title: "LINE X", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Quadrangle - Main Building", department: "ECE" },
+            { title: "FACE PAINTING", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "F 103 - 1st Floor MBA F Block", department: "MCA" },
+            { title: "TECH WITHOUT TECH", lat: 11.359837, lng: 77.828236, zoom: 19, landmark: "Robotics Laboratory - 1st Floor MCT J Block", department: "MCT" },
+            { title: "MIND SPARK", lat: 11.359837, lng: 77.828236, zoom: 19, landmark: "MC 306 - 3rd Floor MCT J Block", department: "MCT" },
+            { title: "FREEZEFRAME", lat: 11.358500, lng: 77.829200, zoom: 19, landmark: "C107 - Ground Floor Mechanical Block", department: "MECH" },
+            { title: "T2T-Trash 2 Textile", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "Textile Chemical Lab - Ground Floor MBA F Block", department: "TXT" },
+            { title: "BlindBites", lat: 11.359837, lng: 77.828236, zoom: 19, landmark: "Electronic Devices Lab - Ground Floor MCT J Block", department: "VLSI" }
+        ]
+    },
+    {
+        id: 13,
+        title: "Presentations",
+        children: [
+            {
+                title: "Project Presentation",
+                date: "13.02.2026",
+                children: [
+                    { title: "MCT - Ground Floor", lat: 11.359837, lng: 77.828236, zoom: 19, landmark: "PLC Lab, EDC Lab, Robotics Lab, CAD CAM Lab" },
+                    { title: "MCT - 1st Floor", lat: 11.359837, lng: 77.828236, zoom: 19, landmark: "PLC Lab, EDC Lab, Robotics Lab, CAD CAM Lab" }
+                ]
+            },
+            {
+                title: "Poster Presentation",
+                date: "13.02.2026",
+                children: [
+                    { title: "EEE, ECE, VLSI, MCT", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Microprocessor Lab - 1st Floor Main Building" },
+                    { title: "AI & DS", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "Electrical Machines Lab - Ground Floor EEE M Block" },
+                    { title: "AIML", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "FRE Lab - 1st Floor EEE M Block" },
+                    { title: "AIML / CSBS", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "CDAC CoE - 1st Floor EEE M Block" },
+                    { title: "CSE / IT", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "Power Electronics Lab - 1st Floor EEE M Block" },
+                    { title: "CSE / IT - Floor 2", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "Microprocessor Lab - 2nd Floor EEE M Block" },
+                    { title: "BT, FT, TXT", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "FRE Lab - Ground Floor Academic A Block" },
+                    { title: "Civil", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Physics lab - 1st Floor Academic A Block" },
+                    { title: "Mech", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Chemistry Lab - 1st Floor Academic A Block" }
+                ]
+            },
+            {
+                title: "Paper Presentation",
+                date: "13.02.2026",
+                children: [
+                    { title: "Civil", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "IDEA Lab - Ground Floor Main building" },
+                    { title: "CSBS", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "A103 - 1st Floor Main building" },
+                    { title: "AIML", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "A112 - 1st Floor Main building" },
+                    { title: "AI & DS", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "A113 - 1st Floor Main building" },
+                    { title: "VLSI", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "A102 - 1st Floor Main building" },
+                    { title: "Textile", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "A202 - 1st Floor Main building" },
+                    { title: "ECE", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "VLSI Lab - 2nd Floor Main building" },
+                    { title: "EEE", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "NICE LAB - 1st Floor Academic Block" },
+                    { title: "CSE", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "Cloud Lab - 1st Floor IT Park" },
+                    { title: "IT", lat: 11.360070, lng: 77.827426, zoom: 19, landmark: "IT Board Room - 2nd Floor IT Park" },
+                    { title: "MCT", lat: 11.359837, lng: 77.828236, zoom: 19, landmark: "MCT Conference Hall - 2nd Floor MCT J Block" },
+                    { title: "Bio Tech & Food Tech", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "Dr. Amartyasen Hall - 2nd Floor MBA F Block" },
+                    { title: "Mech", lat: 11.358500, lng: 77.829200, zoom: 19, landmark: "Mechanical Board Room - Ground Floor" }
+                ]
+            }
+        ]
+    },
+    {
+        id: 14,
+        title: "Conferences & Talks",
+        children: [
+            {
+                title: "Conference Venues",
+                date: "12.02.2026",
+                children: [
+                    { title: "School of Life Science", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "A102 - 1st Floor Main building" },
+                    { title: "School of Electrical Science", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "VLSI Lab - 2nd Floor Main building" },
+                    { title: "School of Building & Mechanical", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "A103 - 1st Floor Main building" },
+                    { title: "School of Computing Science", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "A202 - 2nd Floor Main building" }
+                ]
+            },
+            {
+                title: "Leaders Talk",
+                date: "12.02.2026",
+                children: [
+                    { title: "Visvesvaraya Hall", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Ground Floor Academic A Block" },
+                    { title: "KSR Hall", lat: 11.361200, lng: 77.829500, zoom: 19, landmark: "At the Entrance" }
+                ]
+            },
+            {
+                title: "Tech Talk",
+                date: "14.02.2026",
+                children: [
+                    { title: "Tamil Department", lat: 11.359244, lng: 77.828150, zoom: 19, landmark: "FinTech Lab - 1st Floor MBA F Block" },
+                    { title: "English Department", lat: 11.358643, lng: 77.828868, zoom: 19, landmark: "Language Lab - 2nd Floor Academic Block" }
+                ]
+            }
+        ]
     }
 ];
 
@@ -883,6 +1095,9 @@ function locateUser() {
 
             // **NEW: Hide loading indicator**
             hideLocationLoading();
+
+            // **NEW: Close error dialog when location is found**
+            closeErrorModal();
 
             // 1. Create or Update Green Marker
             if (!userMarker) {
@@ -1653,10 +1868,12 @@ function renderMenu(data, container) {
 function selectLocation(loc) {
     if(!loc.lat || !loc.lng) return;
 
+    // **NEW: Close error dialog when location is selected**
+    closeErrorModal();
+
     // Set global destination variables
     destinationCoords = [loc.lng, loc.lat];
     destinationTitle = loc.title || loc.landmark || "Selected Location";
-
     // Fly to location
     map.flyTo({
         center: [loc.lng, loc.lat], 
