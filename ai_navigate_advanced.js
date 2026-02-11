@@ -29,15 +29,15 @@ function flattenData(items, parentName = "") {
 const synonyms = {
     "food": { 
         category: "Canteens", 
-        tags: ["hungry", "eat", "snack", "lunch", "dinner", "breakfast", "cafe", "cafeteria"] 
+        tags: ["hungry", "eat", "snack", "lunch", "dinner", "breakfast", "cafe", "cafeteria","food"] 
     },
     "toilet": { 
         category: "Restrooms", 
-        tags: ["loo", "washroom", "bathroom", "wc", "restroom"] 
+        tags: ["poo", "washroom", "bathroom", "wc", "restroom"] 
     },
     "dorm": { 
         category: "Hostels", 
-        tags: ["sleep", "bed", "room", "accommodation", "stay", "hostel"] 
+        tags: ["sleep", "bed", "room", "accommodation", "stay", "hostel","rest","relax"] 
     },
     "water": { 
         category: "Water Points", 
@@ -53,7 +53,7 @@ const synonyms = {
     },
     "venue": { 
         category: "Venues", 
-        tags: ["hall", "auditorium", "lab", "class", "classroom", "tutorial"] 
+        tags: ["hall", "auditorium", "lab", "class", "classroom", "tutorial","vibe code","vibe","hackathon","24"] 
     }
 };
 

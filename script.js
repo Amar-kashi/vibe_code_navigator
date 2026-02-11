@@ -244,6 +244,13 @@ const menuData = [
         title: "Venues",
         children: [
             { 
+                title: "Academic Block(vibe-code)", 
+                lat: 11.35882563592134, 
+                lng: 77.82851854512438, 
+                zoom: 19,
+                landmark: "AB Lab(1,3) Floor 2"
+            },
+            { 
                 title: "Cyberdome - Floor 3", 
                 lat: 11.359960754413105, 
                 lng: 77.82736780739909, 
